@@ -1,0 +1,66 @@
+---
+title: "Building Your GitHub Profile with an AI Agent Team"
+description: "How I used GitHub Copilot agents — designer, writer, researcher, reviewer — as an autonomous team to design and ship my profile README. A practical walkthrough of AI-Native development."
+pubDate: 2026-02-25
+tags: ["AI-Native", "GitHub Copilot", "Open Source", "Developer Tooling"]
+---
+
+## Why Your GitHub Profile Matters More Than You Think
+
+Your GitHub profile is the first thing a recruiter, collaborator, or open-source maintainer sees when they search for you. It's a product page, a resume, and a personality test — all at once. Yet most developers treat it as an afterthought.
+
+I didn't want that. So I built mine the way I build everything now: **with an AI agent team**.
+
+## The Setup: Four Agents, One Goal
+
+Instead of prompting a single AI to "write my README", I assembled a four-agent team inside GitHub Copilot, each with a distinct role:
+
+| Agent | Role |
+|-------|------|
+| `profile-designer` | Visual architecture — layout, components, color system |
+| `content-writer` | Turns design plans into working Markdown code |
+| `researcher` | Investigates external tools, themes, and options |
+| `qa-reviewer` | Multi-dimensional quality audit after each iteration |
+
+The key insight: **specialization beats generalism** even for AI. A vague prompt to one agent produces mediocre output. A targeted brief to a specialized agent — with constraints, context, and clear output format — produces work you can actually ship.
+
+## The Workflow in Practice
+
+### Step 1 — Team Meeting
+
+Before writing a single line of Markdown, I ran a "parallel full-team meeting". All four agents reviewed the current state of the profile against a rubric:
+
+```
+designer:  Visual score 6.5/10 — "component showroom, no narrative rhythm"
+qa:        Engineering score 4/10 — "CI completely missing"
+writer:    Content score 6/10 — "JSON self-intro is thin"
+```
+
+This produced a concrete V2.0 plan with 30+ actionable tasks, prioritized and phased.
+
+### Step 2 — Phased Execution
+
+Tasks were grouped into phases (A/B/C/D/E), each executable by a single agent without human intervention between steps:
+
+- **Phase A** — Restructure README block order, expand JSON, add Connect section
+- **Phase B** — `<picture>` dual-mode (dark/light) for every visual component
+- **Phase C** — Astro site: navigation, footer, Blog with Content Collections
+- **Phase D** — CI (link-check + markdown-lint), `.editorconfig`, v1.0.0 tag
+
+### Step 3 — QA Before Push
+
+Every set of changes passes through `qa-reviewer` before commit. No exceptions. This catches broken URLs, missing alt text, and theme inconsistencies before they reach production.
+
+## What "AI-Native" Actually Means
+
+It doesn't mean "prompt an AI and accept whatever comes out."
+
+It means **structuring your work so AI agents can operate autonomously on well-defined tasks**, while humans handle ambiguity (what to build) and validation (does this look right).
+
+The result: I shipped more changes in one session than I'd normally do in a week — and the output quality was higher because every decision was traced and every component was reviewed.
+
+## The Template is Open Source
+
+The entire setup — agent definitions, instructions, design decisions log, workflow docs — is available at [njueeRay/OpenProfile](https://github.com/njueeRay/OpenProfile). Fork it, adapt the agents to your identity, and ship your own V2.0.
+
+> **Future is coming, move early.**

@@ -1,0 +1,70 @@
+---
+title: "What I Mean When I Say 'AI-Native'"
+description: "AI-Native isn't a buzzword — it's a development posture. Here's the practical distinction between using AI as a tool and restructuring your workflow around AI agents as team members."
+pubDate: 2026-02-25
+tags: ["AI-Native", "LLM Engineering", "Developer Mindset", "Workflow"]
+---
+
+## The Word Gets Misused
+
+"AI-Native" shows up on LinkedIn posts next to stock photos of robot hands typing code. Most of the time it means: "we use ChatGPT sometimes."
+
+That's not what I mean.
+
+## Tool Use vs. Workflow Restructuring
+
+There's a fundamental difference between:
+
+**Using AI as a tool:**  
+You write code → you get stuck → you ask AI → you paste the answer → you continue.  
+AI is a faster Stack Overflow.
+
+**Restructuring your workflow around AI:**  
+You define the task structure → assign agents to phases → validate outputs at gates → you handle only what requires human judgment.  
+AI is a team member with specific responsibilities.
+
+The second model is what I call AI-Native.
+
+## Three Properties of an AI-Native Workflow
+
+### 1. Tasks are designed for agent execution
+
+Not "write me a README" — too vague, too large.  
+Instead: "Rewrite the JSON self-introduction to include 10+ fields, add a 3-sentence English narrative paragraph, maintain existing formatting conventions." 
+
+The task is bounded, has clear acceptance criteria, and can be verified without running the code.
+
+### 2. Agents have roles, not just instructions
+
+A single agent prompted to "be a designer AND writer AND reviewer" will average out all three roles into mediocrity. Separate agents with distinct prompts, distinct tools, and distinct handoff triggers produce better outputs — because **specialization is a forcing function for clarity**.
+
+### 3. Humans handle ambiguity; agents handle execution
+
+Deciding *what* to build, *who* the audience is, *which* tradeoffs matter — these require human judgment. Writing the Markdown, checking the links, validating the theme consistency — these don't. 
+
+AI-Native means being ruthlessly honest about which category each task falls into.
+
+## What This Looks Like in Practice
+
+For this blog post itself:  
+- **Decision (human):** What topic, what angle, what audience  
+- **Draft (agent):** Write a technical blog post with these parameters  
+- **Review (human):** Is this actually what I think? Does it represent my voice?  
+- **Refinement (agent):** Adjust tone, tighten structure, fix prose  
+
+The human is in the loop for judgment, not for typing.
+
+## The Honest Limitation
+
+This only works if you can clearly specify what "done looks like." If you can't describe the acceptance criteria, no agent can reach them. The bottleneck in AI-Native development is almost never the AI — it's the human's ability to decompose problems precisely.
+
+That's actually an upgrade to your own engineering thinking. You get better at breaking down problems because you have to — the alternative is wasted agent calls.
+
+## Start Here
+
+If you're building something right now, take one piece of it and ask: *could I write a spec tight enough that an agent could execute this without follow-up questions?*
+
+If yes: hand it off.  
+If no: figure out why — that gap in your spec is the real problem.
+
+> **The future isn't AI replacing developers. It's developers who work with AI replacing developers who don't.**

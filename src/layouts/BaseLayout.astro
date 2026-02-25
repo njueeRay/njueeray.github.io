@@ -1,6 +1,9 @@
 ---
 // Base layout for all pages
 // Dark terminal aesthetic — primary color: #58a6ff (GitHub blue)
+import Nav from '@components/Nav.astro';
+import Footer from '@components/Footer.astro';
+import { ViewTransitions } from 'astro:transitions';
 
 export interface Props {
   title: string;
@@ -19,6 +22,7 @@ const { title, description = "Ray Huang — Open Source Programmer, LLM Engineer
     <meta name="author" content="Ray Huang" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
+    <ViewTransitions />
     <style>
       :root {
         --color-bg:        #0d1117;
@@ -47,6 +51,8 @@ const { title, description = "Ray Huang — Open Source Programmer, LLM Engineer
       body {
         min-height: 100vh;
         line-height: 1.6;
+        /* Reserve space for fixed navbar */
+        padding-top: 52px;
       }
 
       a {
@@ -69,6 +75,8 @@ const { title, description = "Ray Huang — Open Source Programmer, LLM Engineer
     </style>
   </head>
   <body>
+    <Nav />
     <slot />
+    <Footer />
   </body>
 </html>
