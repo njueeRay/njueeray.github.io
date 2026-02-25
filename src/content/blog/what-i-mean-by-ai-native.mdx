@@ -1,70 +1,70 @@
 ---
-title: "What I Mean When I Say 'AI-Native'"
-description: "AI-Native isn't a buzzword — it's a development posture. Here's the practical distinction between using AI as a tool and restructuring your workflow around AI agents as team members."
+title: "我所说的《AI-Native》是什么意思"
+description: "AI-Native 不是一个噪敲应常——它是一种开发姿态。这里是「把 AI 当工具用」与「围绕 AI Agent 重构工作流」之间的实质区别。"
 pubDate: 2026-02-25
-tags: ["AI-Native", "LLM Engineering", "Developer Mindset", "Workflow"]
+tags: ["AI-Native", "LLM 工程", "开发者思维", "工作流"]
 ---
 
-## The Word Gets Misused
+## 这个词被滥用了
 
-"AI-Native" shows up on LinkedIn posts next to stock photos of robot hands typing code. Most of the time it means: "we use ChatGPT sometimes."
+《AI-Native》出现在 LinkedIn 贴文里，旁边配着机器人手运输打字这类文章的配图。大多数时候它的意思是：“我们有时会用用 ChatGPT”。
 
-That's not what I mean.
+这不是我说的意思。
 
-## Tool Use vs. Workflow Restructuring
+## 工具使用 vs 工作流重构
 
-There's a fundamental difference between:
+两者之间有本质区别：
 
-**Using AI as a tool:**  
-You write code → you get stuck → you ask AI → you paste the answer → you continue.  
-AI is a faster Stack Overflow.
+**把 AI 当工具用：**
+你写代码 → 遇到瓶颈 → 问 AI → 粘贴答案 → 继续。
+AI 是一个更快的 Stack Overflow。
 
-**Restructuring your workflow around AI:**  
-You define the task structure → assign agents to phases → validate outputs at gates → you handle only what requires human judgment.  
-AI is a team member with specific responsibilities.
+**围绕 AI 重构工作流：**
+你定义任务结构 → 将 Agent 分配到各阶段 → 在门禁点验收输出 → 你只处理需要人类判断的事。
+AI 是一个有明确职责的团队成员。
 
-The second model is what I call AI-Native.
+第二种模式，就是我说的 AI-Native。
 
-## Three Properties of an AI-Native Workflow
+## AI-Native 工作流的三个特征
 
-### 1. Tasks are designed for agent execution
+### 1. 任务就是为了 Agent 执行而设计的
 
-Not "write me a README" — too vague, too large.  
-Instead: "Rewrite the JSON self-introduction to include 10+ fields, add a 3-sentence English narrative paragraph, maintain existing formatting conventions." 
+不是「帮我写一个 README」——太模糊，太大。
+而是：「将 JSON 自述重写，包含 10+ 个字段，新增一段三句话的英文叙事段，保持现有格式规范。」
 
-The task is bounded, has clear acceptance criteria, and can be verified without running the code.
+这个任务是有边界的，有清晰的验收标准，不运行代码就能验证。
 
-### 2. Agents have roles, not just instructions
+### 2. Agent 有角色，不只有指令
 
-A single agent prompted to "be a designer AND writer AND reviewer" will average out all three roles into mediocrity. Separate agents with distinct prompts, distinct tools, and distinct handoff triggers produce better outputs — because **specialization is a forcing function for clarity**.
+让一个 Agent “同时承担设计师 + 开发者 + 审查员”三种角色，它会把三者平均成个不上不下的水平。谁各有独立提示词、独立工具集和独立的楊外触发最终产出更好的输出——因为**专业化本身就是一种迫使清晰度的机制**。
 
-### 3. Humans handle ambiguity; agents handle execution
+### 3. 人类处理模糊性， Agent 处理执行
 
-Deciding *what* to build, *who* the audience is, *which* tradeoffs matter — these require human judgment. Writing the Markdown, checking the links, validating the theme consistency — these don't. 
+决定*建什么*、*目标用户是谁*、*哪些权衡最重要*——这些需要人类判断。写 Markdown、检查链接、验证主题色一致性——这些不需要。
 
-AI-Native means being ruthlessly honest about which category each task falls into.
+AI-Native 意味着对每个任务属于哪一类进行斠酸判断。
 
-## What This Looks Like in Practice
+## 实践中长什么样
 
-For this blog post itself:  
-- **Decision (human):** What topic, what angle, what audience  
-- **Draft (agent):** Write a technical blog post with these parameters  
-- **Review (human):** Is this actually what I think? Does it represent my voice?  
-- **Refinement (agent):** Adjust tone, tighten structure, fix prose  
+就这篇博客本身而言：
+- **决策（人类）：** 什么主题、什么角度、谁是读者
+- **起草（Agent）：** 按这些参数写一篇技术博客
+- **审阅（人类）：** 这真的是我要说的吗？是否代表我的声音？
+- **精修（Agent）：** 调整语气、压紧结构、修妆表达
 
-The human is in the loop for judgment, not for typing.
+人类参与的是判断，而不是打字。
 
-## The Honest Limitation
+## 说实话的局限
 
-This only works if you can clearly specify what "done looks like." If you can't describe the acceptance criteria, no agent can reach them. The bottleneck in AI-Native development is almost never the AI — it's the human's ability to decompose problems precisely.
+这一切的前提是：你能清楚地描述「完成是什么样子」。如果你无法描述验收标准，任何 Agent 也无法达到它。AI-Native 开发的瓶颈几乎永远不在 AI 那一侧——在于人类清晰拆解问题的能力。
 
-That's actually an upgrade to your own engineering thinking. You get better at breaking down problems because you have to — the alternative is wasted agent calls.
+实际上，这也是对你自身工程思维的一次升级。你会变得更擅长拆解问题——因为你不得不，否则等待你的就是被浪费的 Agent 调用。
 
-## Start Here
+## 从这里开始
 
-If you're building something right now, take one piece of it and ask: *could I write a spec tight enough that an agent could execute this without follow-up questions?*
+如果你现在正在构建什么，拿一个模块问自己：*我能写出一份足够精确的规格，让 Agent 不需要追问就能执行吗？*
 
-If yes: hand it off.  
-If no: figure out why — that gap in your spec is the real problem.
+如果可以：把它交出去。
+如果不行：搜屑原因——规格里的空缺，才是真正需要解决的问题。
 
-> **The future isn't AI replacing developers. It's developers who work with AI replacing developers who don't.**
+> **未来不是 AI 取代开发者，而是与 AI 协作的开发者取代不与 AI 协作的开发者。**

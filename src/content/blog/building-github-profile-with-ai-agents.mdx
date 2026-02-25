@@ -1,66 +1,66 @@
 ---
-title: "Building Your GitHub Profile with an AI Agent Team"
-description: "How I used GitHub Copilot agents — designer, writer, researcher, reviewer — as an autonomous team to design and ship my profile README. A practical walkthrough of AI-Native development."
+title: "用 AI Agent 团队构建你的 GitHub Profile"
+description: "我如何用 GitHub Copilot 的专项 Agent 团队——设计师、开发者、调研员、代码审查员——自主协作完成 Profile README 的设计与发布。一份 AI-Native 开发的实践全记录。"
 pubDate: 2026-02-25
-tags: ["AI-Native", "GitHub Copilot", "Open Source", "Developer Tooling"]
+tags: ["AI-Native", "GitHub Copilot", "开源", "开发者工具"]
 ---
 
-## Why Your GitHub Profile Matters More Than You Think
+## 为什么你的 GitHub Profile 比你想的更重要
 
-Your GitHub profile is the first thing a recruiter, collaborator, or open-source maintainer sees when they search for you. It's a product page, a resume, and a personality test — all at once. Yet most developers treat it as an afterthought.
+当招聘者、合作者或开源维护者搜索你的时候，他们首先看到的就是你的 GitHub Profile。它同时承担着产品页、简历和性格测试三个角色。然而大多数开发者把它当成一个无足轻重的附属品。
 
-I didn't want that. So I built mine the way I build everything now: **with an AI agent team**.
+我不想这样。所以我用了现在构建一切的方式——**用一支 AI Agent 团队**——来打造它。
 
-## The Setup: Four Agents, One Goal
+## 配置：四个 Agent，一个目标
 
-Instead of prompting a single AI to "write my README", I assembled a four-agent team inside GitHub Copilot, each with a distinct role:
+我没有让单个 AI「帮我写 README」，而是在 GitHub Copilot 里组建了一支四人 Agent 团队，每个成员有独立的角色：
 
-| Agent | Role |
+| Agent | 职责 |
 |-------|------|
-| `profile-designer` | Visual architecture — layout, components, color system |
-| `content-writer` | Turns design plans into working Markdown code |
-| `researcher` | Investigates external tools, themes, and options |
-| `qa-reviewer` | Multi-dimensional quality audit after each iteration |
+| `profile-designer` | 视觉架构——布局规划、组件选型、色彩体系 |
+| `dev` | 将设计方案转化为实际可执行的 Markdown 代码 |
+| `researcher` | 调研外部工具、主题方案和可选项 |
+| `code-reviewer` | 多维度质量审查，每次迭代后必做 |
 
-The key insight: **specialization beats generalism** even for AI. A vague prompt to one agent produces mediocre output. A targeted brief to a specialized agent — with constraints, context, and clear output format — produces work you can actually ship.
+核心洞察：**即使对 AI 而言，专业化也胜过通才。** 给一个 Agent 下达含糊的提示词，只能得到平庸的输出。而给专项 Agent 一份有约束、有上下文、输出格式清晰的任务简报——你才能得到真正可以发布的成果。
 
-## The Workflow in Practice
+## 工作流实践
 
-### Step 1 — Team Meeting
+### 第一步——团队全员会议
 
-Before writing a single line of Markdown, I ran a "parallel full-team meeting". All four agents reviewed the current state of the profile against a rubric:
+在写任何一行 Markdown 之前，我先跑了一次「并行全体会议」。四个 Agent 分别对照评分标准，审视当前 Profile 的状态：
 
+```text
+designer:  视觉评分 6.5/10 —— "组件陈列室，没有叙事节奏"
+reviewer:  工程评分 4/10   —— "CI 系统完全缺失"
+dev:       内容评分 6/10   —— "JSON 自述字段过少"
 ```
-designer:  Visual score 6.5/10 — "component showroom, no narrative rhythm"
-qa:        Engineering score 4/10 — "CI completely missing"
-writer:    Content score 6/10 — "JSON self-intro is thin"
-```
 
-This produced a concrete V2.0 plan with 30+ actionable tasks, prioritized and phased.
+这次会议直接产出了一份具体的 V2.0 计划，涵盖 30+ 可执行任务，按优先级分阶段排列。
 
-### Step 2 — Phased Execution
+### 第二步——分阶段执行
 
-Tasks were grouped into phases (A/B/C/D/E), each executable by a single agent without human intervention between steps:
+任务被拆分为 A/B/C/D 四个阶段，每个阶段可由单个 Agent 独立完成，无需人工介入：
 
-- **Phase A** — Restructure README block order, expand JSON, add Connect section
-- **Phase B** — `<picture>` dual-mode (dark/light) for every visual component
-- **Phase C** — Astro site: navigation, footer, Blog with Content Collections
-- **Phase D** — CI (link-check + markdown-lint), `.editorconfig`, v1.0.0 tag
+- **Phase A** — 重组 README 区块顺序，扩展 JSON 字段，新增 Connect 区块
+- **Phase B** — 用 `<picture>` 标签为每个视觉组件实现暗色 / 亮色双模兼容
+- **Phase C** — Astro 站点改造：导航栏、页脚、基于 Content Collections 的博客系统
+- **Phase D** — CI 配置（链接检查 + Markdown 规范）、`.editorconfig`、v1.0.0 标签
 
-### Step 3 — QA Before Push
+### 第三步——推送前 QA
 
-Every set of changes passes through `qa-reviewer` before commit. No exceptions. This catches broken URLs, missing alt text, and theme inconsistencies before they reach production.
+每组改动在提交之前都必须通过 `code-reviewer` 的审查，没有例外。这一步能在上线前拦截失效链接、缺失 alt text 和主题色不一致的问题。
 
-## What "AI-Native" Actually Means
+## 《AI-Native》到底是什么意思
 
-It doesn't mean "prompt an AI and accept whatever comes out."
+它不是「让 AI 生成内容然后照单全收」。
 
-It means **structuring your work so AI agents can operate autonomously on well-defined tasks**, while humans handle ambiguity (what to build) and validation (does this look right).
+它的意思是：**将工作结构化，让 Agent 可以自主执行边界清晰的任务**——同时让人类专注于处理模糊性（决定做什么）和验收（这个对吗）。
 
-The result: I shipped more changes in one session than I'd normally do in a week — and the output quality was higher because every decision was traced and every component was reviewed.
+结果：我在一次会话里发布的改动，超过了平时一整周的产出——而输出质量更高，因为每个决定都有据可查，每个组件都经过了审查。
 
-## The Template is Open Source
+## 模板是开源的
 
-The entire setup — agent definitions, instructions, design decisions log, workflow docs — is available at [njueeRay/OpenProfile](https://github.com/njueeRay/OpenProfile). Fork it, adapt the agents to your identity, and ship your own V2.0.
+整套配置——Agent 定义、项目指令、设计决策日志、工作流文档——已发布在 [njueeRay/OpenProfile](https://github.com/njueeRay/OpenProfile)。Fork 它，将 Agent 配置适配成你的个人信息，然后发布你自己的 V2.0。
 
-> **Future is coming, move early.**
+> **未来已来，先行者先得。（Future is coming, move early.）**
