@@ -3,17 +3,21 @@
 const projects = [
   {
     name: "OpenProfile",
-    desc: "AI-Native GitHub Profile workflow — build yours with Copilot Agents",
+    desc: "Build your GitHub profile with an AI Agent team — designer, writer, researcher, reviewer in one workflow.",
     url: "https://github.com/njueeRay/OpenProfile",
-    tags: ["AI", "GitHub Copilot", "Open Source"],
-    stars: null,
+    tags: ["AI-Native", "GitHub Copilot", "Open Source"],
   },
   {
-    name: "browser-use",
-    desc: "Make websites accessible for AI agents. Fork & contributor.",
-    url: "https://github.com/njueeRay/browser-use",
-    tags: ["Python", "LLM", "Automation"],
-    stars: null,
+    name: "wechat_article_exporter",
+    desc: "Export WeChat public account articles to structured formats — built for knowledge archiving and RAG pipelines.",
+    url: "https://github.com/njueeRay/wechat_article_exporter",
+    tags: ["Python", "RAG", "Knowledge Engineering"],
+  },
+  {
+    name: "MediaCrawler",
+    desc: "Multi-platform social media scraper for Xiaohongshu, Douyin, Weibo — data pipeline for LLM training & analysis.",
+    url: "https://github.com/njueeRay/MediaCrawler",
+    tags: ["Python", "Web Scraping", "LLM Data", "fork"],
   },
 ];
 ---
@@ -30,7 +34,7 @@ const projects = [
           </div>
           <p class="desc">{p.desc}</p>
           <div class="tags">
-            {p.tags.map(t => <span class="tag">{t}</span>)}
+            {p.tags.map(t => <span class={`tag${t === 'fork' ? ' fork' : ''}`}>{t}</span>)}
           </div>
         </a>
       ))}
@@ -75,5 +79,10 @@ const projects = [
     border-radius: 4px;
     padding: 0.1rem 0.5rem;
     color: var(--color-text-muted);
+  }
+  .tag.fork {
+    border-color: var(--color-yellow);
+    color: var(--color-yellow);
+    background: rgba(227, 179, 65, 0.08);
   }
 </style>
