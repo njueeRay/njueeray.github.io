@@ -1,0 +1,74 @@
+---
+// Tech stack section with visual skill indicators
+const skills = [
+  { name: "Python",     level: 5, icon: "🐍", tag: "primary" },
+  { name: "C++",        level: 4, icon: "⚙️",  tag: "primary" },
+  { name: "TypeScript", level: 4, icon: "📘", tag: "primary" },
+  { name: "JavaScript", level: 4, icon: "⚡", tag: "primary" },
+  { name: "LLM/AI",     level: 5, icon: "🤖", tag: "focus" },
+  { name: "Git",        level: 5, icon: "🌿", tag: "tool" },
+  { name: "Docker",     level: 3, icon: "🐳", tag: "tool" },
+  { name: "Linux",      level: 4, icon: "🐧", tag: "tool" },
+];
+---
+
+<section class="tech" id="tech">
+  <div class="container">
+    <h2 class="section-title"><span class="prompt">$</span> ls skills/</h2>
+    <div class="grid">
+      {skills.map(s => (
+        <div class={`card tag-${s.tag}`}>
+          <span class="icon">{s.icon}</span>
+          <span class="skill-name">{s.name}</span>
+          <div class="dots">
+            {[1,2,3,4,5].map(n => (
+              <span class={`dot ${n <= s.level ? 'filled' : ''}`}></span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .tech { padding: 4rem 1.5rem; border-top: 1px solid var(--color-border); }
+  .container { max-width: 780px; margin: 0 auto; }
+  .section-title {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+  }
+  .section-title .prompt { color: var(--color-green); margin-right: 0.3rem; }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 0.75rem;
+  }
+  .card {
+    background: var(--color-bg-2);
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 0.9rem 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .card:hover { border-color: var(--color-accent); transform: translateY(-2px); }
+  .card.tag-focus { border-color: rgba(0,180,216,0.4); }
+
+  .icon { font-size: 1.3rem; }
+  .skill-name { font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-text); }
+
+  .dots { display: flex; gap: 3px; margin-top: 0.2rem; }
+  .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--color-bg-3);
+    border: 1px solid var(--color-border);
+  }
+  .dot.filled { background: var(--color-accent); border-color: var(--color-accent); }
+</style>

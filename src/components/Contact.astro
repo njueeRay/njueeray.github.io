@@ -1,0 +1,46 @@
+---
+// Contact / footer section
+---
+
+<section class="contact" id="contact">
+  <div class="container">
+    <h2 class="section-title"><span class="prompt">$</span> cat contact.txt</h2>
+    <div class="links">
+      <a href="https://github.com/njueeRay" target="_blank" rel="noopener" class="link">
+        <span class="icon">◆</span> GitHub / njueeRay
+      </a>
+      <a href="https://github.com/njueeRay/OpenProfile" target="_blank" rel="noopener" class="link">
+        <span class="icon">◆</span> OpenProfile (This site's workflow)
+      </a>
+    </div>
+    <p class="footer-note">
+      Built with <a href="https://astro.build">Astro</a> ·
+      Styled with ❤️ for terminal aesthetics ·
+      <a href="https://github.com/njueeRay/OpenProfile/blob/main/LICENSE">MIT License</a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .contact { padding: 4rem 1.5rem 6rem; border-top: 1px solid var(--color-border); }
+  .container { max-width: 780px; margin: 0 auto; }
+  .section-title {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+  }
+  .section-title .prompt { color: var(--color-green); margin-right: 0.3rem; }
+  .links { display: flex; flex-direction: column; gap: 0.6rem; margin-bottom: 2rem; }
+  .link {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--color-text);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .link:hover { color: var(--color-accent); }
+  .icon { color: var(--color-accent); font-size: 0.6rem; }
+  .footer-note { font-size: 0.8rem; color: var(--color-text-muted); }
+</style>

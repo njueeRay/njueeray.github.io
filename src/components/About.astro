@@ -1,0 +1,36 @@
+---
+// About section
+---
+<section class="about" id="about">
+  <div class="container">
+    <h2 class="section-title"><span class="prompt">$</span> cat about.md</h2>
+    <div class="content">
+      <p>
+        Hi, I'm <strong>Ray Huang</strong> — an open-source programmer, LLM engineer and full-stack developer based in <span class="accent">Nanjing, China</span>.
+      </p>
+      <p>
+        I focus on exploring the best AI-Native development paths. Currently building workflows where AI Agents handle implementation while I focus on architecture and decisions.
+      </p>
+      <p class="muted">
+        <em>"Make Yourself an AI-Native Person."</em>
+      </p>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about { padding: 4rem 1.5rem; border-top: 1px solid var(--color-border); }
+  .container { max-width: 780px; margin: 0 auto; }
+  .section-title {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1.5rem;
+  }
+  .section-title .prompt { color: var(--color-green); margin-right: 0.3rem; }
+  .content { display: flex; flex-direction: column; gap: 1rem; }
+  .content p { color: var(--color-text); line-height: 1.8; }
+  .accent { color: var(--color-accent); }
+  .muted { color: var(--color-text-muted); }
+  strong { color: #fff; }
+</style>

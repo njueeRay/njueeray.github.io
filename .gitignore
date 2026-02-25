@@ -1,0 +1,10 @@
+# .gitignore — njueeray.github.io (Astro site)
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+.DS_Store
+Thumbs.db
+*.log

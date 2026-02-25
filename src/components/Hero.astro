@@ -1,0 +1,156 @@
+---
+// Hero section: terminal-style intro with animated cursor
+---
+
+<section class="hero">
+  <div class="container">
+    <div class="terminal-window">
+      <div class="terminal-bar">
+        <span class="dot red"></span>
+        <span class="dot yellow"></span>
+        <span class="dot green"></span>
+        <span class="terminal-title">~/njueeray — bash</span>
+      </div>
+      <div class="terminal-body">
+        <div class="line">
+          <span class="prompt">❯</span>
+          <span class="cmd"> whoami</span>
+        </div>
+        <div class="line output">
+          <span class="name">Ray Huang</span>
+          <span class="sep"> / </span>
+          <span class="role">Open Source Programmer · LLM Engineer · Full-Stack Dev</span>
+        </div>
+        <div class="line">
+          <span class="prompt">❯</span>
+          <span class="cmd"> cat focus.txt</span>
+        </div>
+        <div class="line output muted">
+          Exploring the best AI-Native development practices.
+        </div>
+        <div class="line">
+          <span class="prompt">❯</span>
+          <span class="cmd"> echo $MOTTO</span>
+        </div>
+        <div class="line output accent">
+          "Future is coming, move early."
+        </div>
+        <div class="line cursor-line">
+          <span class="prompt">❯</span>
+          <span class="cursor">█</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-links">
+      <a href="https://github.com/njueeRay" target="_blank" rel="noopener" class="btn">
+        GitHub
+      </a>
+      <a href="https://github.com/njueeRay/OpenProfile" target="_blank" rel="noopener" class="btn btn-outline">
+        This site's source →
+      </a>
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    padding: 4rem 1.5rem;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  /* Terminal window */
+  .terminal-window {
+    background: var(--color-bg-2);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    overflow: hidden;
+    font-family: var(--font-mono);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+
+  .terminal-bar {
+    background: var(--color-bg-3);
+    padding: 0.6rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .dot {
+    width: 12px; height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot.red    { background: #ff5f57; }
+  .dot.yellow { background: #febc2e; }
+  .dot.green  { background: #28c840; }
+
+  .terminal-title {
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  .terminal-body {
+    padding: 1.5rem;
+    font-size: 1rem;
+    line-height: 2;
+  }
+
+  .line { display: flex; align-items: baseline; gap: 0.2rem; }
+  .prompt { color: var(--color-accent); }
+  .cmd { color: var(--color-text); }
+  .output { padding-left: 1.5rem; }
+  .muted { color: var(--color-text-muted); }
+  .accent { color: var(--color-accent); }
+
+  .name { color: #fff; font-weight: 700; font-size: 1.1rem; }
+  .sep  { color: var(--color-text-muted); }
+  .role { color: var(--color-text-muted); }
+
+  /* Blinking cursor */
+  .cursor {
+    color: var(--color-accent);
+    animation: blink 1.2s step-end infinite;
+    margin-left: 2px;
+  }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+  /* CTA buttons */
+  .hero-links {
+    display: flex;
+    gap: 1rem;
+    margin-top: 2rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.6rem 1.4rem;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    background: var(--color-accent);
+    color: var(--color-bg);
+    font-weight: 600;
+    transition: opacity 0.2s;
+  }
+  .btn:hover { opacity: 0.85; color: var(--color-bg); }
+
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
+  }
+  .btn-outline:hover { background: rgba(0,180,216,0.1); color: var(--color-accent); }
+</style>
