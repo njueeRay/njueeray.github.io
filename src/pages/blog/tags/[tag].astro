@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 import type { CollectionEntry } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -23,6 +23,18 @@ interface Props {
 
 const { tag } = Astro.params;
 const { posts } = Astro.props;
+
+// 预加载作者信息
+const authorMap = new Map<string, { displayName: string; avatar?: string; isAgent: boolean }>();
+for (const post of posts) {
+  const authorId = post.data.author;
+  if (!authorMap.has(authorId)) {
+    try {
+      const entry = await getEntry('authors', authorId);
+      if (entry) authorMap.set(authorId, entry.data);
+    } catch {}
+  }
+}
 ---
 
 <BaseLayout
@@ -51,6 +63,17 @@ const { posts } = Astro.props;
                 <time datetime={post.data.pubDate.toISOString()}>
                   {post.data.pubDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' })}
                 </time>
+                {(() => {
+                  const a = authorMap.get(post.data.author);
+                  if (!a) return null;
+                  return (
+                    <a href={`/blog/authors/${post.data.author}`} class="author-chip">
+                      {a.avatar && <span>{a.avatar}</span>}
+                      <span>{a.displayName}</span>
+                      {a.isAgent && <span class="agent-dot">●</span>}
+                    </a>
+                  );
+                })()}
               </div>
               <h2 class="post-title">{post.data.title}</h2>
               <p class="post-desc">{post.data.description}</p>
@@ -118,6 +141,29 @@ const { posts } = Astro.props;
     font-size: 0.78rem;
     color: var(--color-text-muted);
   }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .author-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: 0.05rem 0.5rem;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .author-chip:hover { color: var(--color-accent); border-color: var(--color-accent); }
+  .agent-dot { color: var(--color-accent); font-size: 0.55rem; }
 
   .post-title {
     font-size: 1.05rem;
