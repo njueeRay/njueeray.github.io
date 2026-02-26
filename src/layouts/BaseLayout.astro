@@ -12,8 +12,8 @@ export interface Props {
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const { title, description = "Ray Huang — Open Source Programmer, LLM Engineer, Full-Stack Developer", ogImage = "/og-default.png" } = Astro.props;
-const ogImageURL = new URL(ogImage, Astro.site).href;
+const { title, description = "Ray Huang — Open Source Programmer, LLM Engineer, Full-Stack Developer", ogImage } = Astro.props;
+const ogImageURL = ogImage ? new URL(ogImage, Astro.site).href : undefined;
 ---
 
 <!doctype html>
@@ -33,14 +33,14 @@ const ogImageURL = new URL(ogImage, Astro.site).href;
     <meta property="og:url" content={canonicalURL} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:image" content={ogImageURL} />
+    {ogImageURL && <meta property="og:image" content={ogImageURL} />}
     <meta property="og:site_name" content="Ray Huang" />
 
     <!-- Twitter -->
-    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:card" content={ogImageURL ? 'summary_large_image' : 'summary'} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
-    <meta name="twitter:image" content={ogImageURL} />
+    {ogImageURL && <meta name="twitter:image" content={ogImageURL} />}
 
     <title>{title}</title>
     <ViewTransitions />
