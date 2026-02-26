@@ -4,7 +4,7 @@ import ReadingProgress from '@components/ReadingProgress.astro';
 import TableOfContents from '@components/TableOfContents.astro';
 import Giscus from '@components/Giscus.astro';
 import LangToggle from '@components/LangToggle.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -16,6 +16,12 @@ export async function getStaticPaths() {
 
 const { post } = Astro.props;
 const { Content } = await post.render();
+
+let authorData = null;
+try {
+  const entry = await getEntry('authors', post.data.author);
+  if (entry) authorData = entry.data;
+} catch {}
 ---
 
 <BaseLayout title={`${post.data.title} · Ray Huang`} description={post.data.description}>
@@ -38,6 +44,13 @@ const { Content } = await post.render();
               (updated {post.data.updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })})
             </span>
           )}
+          {authorData && (
+            <a href={`/blog/authors/${post.data.author}`} class="author-inline">
+              {authorData.avatar && <span>{authorData.avatar}</span>}
+              <span>{authorData.displayName}</span>
+              {authorData.isAgent && <span class="agent-tag">AI Agent</span>}
+            </a>
+          )}
         </div>
         <h1 class="post-title">{post.data.title}</h1>
         <p class="post-desc">{post.data.description}</p>
@@ -53,6 +66,23 @@ const { Content } = await post.render();
       <div class="post-content">
         <Content />
       </div>
+
+      {authorData && (
+        <aside class="author-card">
+          <div class="author-card-avatar">{authorData.avatar ?? '👤'}</div>
+          <div class="author-card-body">
+            <div class="author-card-name-row">
+              <a href={`/blog/authors/${post.data.author}`} class="author-card-name">
+                {authorData.displayName}
+              </a>
+              {authorData.isAgent && <span class="agent-badge">AI Agent</span>}
+            </div>
+            <p class="author-card-role">{authorData.role}</p>
+            <p class="author-card-bio">{authorData.bio}</p>
+            <blockquote class="author-card-philosophy">"​{authorData.philosophy}"</blockquote>
+          </div>
+        </aside>
+      )}
 
       <Giscus />
     </div>
@@ -85,8 +115,99 @@ const { Content } = await post.render();
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    flex-wrap: wrap;
   }
   .updated { font-style: italic; }
+
+  .author-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.73rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: 0.05rem 0.5rem;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .author-inline:hover { color: var(--color-accent); border-color: var(--color-accent); }
+  .agent-tag {
+    font-size: 0.62rem;
+    border: 1px solid var(--color-accent);
+    border-radius: 20px;
+    padding: 0.02rem 0.35rem;
+    color: var(--color-accent);
+    background: rgba(88, 166, 255, 0.08);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  /* ===== Author Card ===== */
+  .author-card {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    margin: 2.5rem 0;
+    padding: 1.5rem;
+    background: var(--color-bg-2);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+  }
+  .author-card-avatar { font-size: 2.5rem; line-height: 1; flex-shrink: 0; }
+  .author-card-body { flex: 1; min-width: 0; }
+  .author-card-name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.2rem;
+    flex-wrap: wrap;
+  }
+  .author-card-name {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  .author-card-name:hover { color: var(--color-accent); }
+  .agent-badge {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    padding: 0.08rem 0.45rem;
+    border: 1px solid var(--color-accent);
+    border-radius: 20px;
+    color: var(--color-accent);
+    background: rgba(88, 166, 255, 0.08);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .author-card-role {
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
+    color: var(--color-accent);
+    margin: 0 0 0.45rem;
+  }
+  .author-card-bio {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin: 0 0 0.6rem;
+  }
+  .author-card-philosophy {
+    font-size: 0.82rem;
+    color: var(--color-text-muted);
+    font-style: italic;
+    border-left: 2px solid var(--color-accent);
+    padding: 0.35rem 0.75rem;
+    margin: 0;
+    background: rgba(88, 166, 255, 0.04);
+    border-radius: 0 4px 4px 0;
+  }
+
+  @media (max-width: 540px) {
+    .author-card { flex-direction: column; gap: 0.75rem; }
+  }
 
   .post-title {
     font-size: 1.7rem;

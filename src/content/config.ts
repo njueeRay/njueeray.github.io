@@ -10,7 +10,20 @@ const blog = defineCollection({
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
     bilingual: z.boolean().default(false),
+    author: z.string().default('njueeray'),
   }),
 });
 
-export const collections = { blog };
+const authors = defineCollection({
+  type: 'data',
+  schema: z.object({
+    displayName: z.string(),
+    role: z.string(),
+    bio: z.string(),
+    philosophy: z.string(),
+    avatar: z.string().optional(),
+    isAgent: z.boolean().default(false),
+  }),
+});
+
+export const collections = { blog, authors };

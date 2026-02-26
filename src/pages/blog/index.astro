@@ -1,9 +1,21 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+// 预加载所有用到的作者信息（仅加载非默认作者，减少请求）
+const authorMap = new Map<string, { displayName: string; avatar?: string; isAgent: boolean }>();
+for (const post of posts) {
+  const authorId = post.data.author;
+  if (!authorMap.has(authorId)) {
+    try {
+      const entry = await getEntry('authors', authorId);
+      if (entry) authorMap.set(authorId, entry.data);
+    } catch {}
+  }
+}
 ---
 
 <BaseLayout title="Blog · Ray Huang" description="Thoughts on LLM engineering, AI-Native development, and open source.">
@@ -28,6 +40,17 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
                 <time datetime={post.data.pubDate.toISOString()}>
                   {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
                 </time>
+                {(() => {
+                  const a = authorMap.get(post.data.author);
+                  if (!a) return null;
+                  return (
+                    <a href={`/blog/authors/${post.data.author}`} class="author-chip">
+                      {a.avatar && <span class="author-emoji">{a.avatar}</span>}
+                      <span>{a.displayName}</span>
+                      {a.isAgent && <span class="agent-dot" title="AI Agent">●</span>}
+                    </a>
+                  );
+                })()}
               </div>
               <h2 class="post-title">{post.data.title}</h2>
               <p class="post-desc">{post.data.description}</p>
@@ -122,6 +145,23 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft))
     transition: color 0.15s, border-color 0.15s;
   }
   .tag:hover { color: var(--color-accent); border-color: var(--color-accent); }
+
+  .author-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: 0.05rem 0.5rem;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .author-chip:hover { color: var(--color-accent); border-color: var(--color-accent); }
+  .author-emoji { font-style: normal; line-height: 1; }
+  .agent-dot { color: var(--color-accent); font-size: 0.55rem; }
 
   .post-title {
     font-size: 1.05rem;
