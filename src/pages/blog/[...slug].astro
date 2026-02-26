@@ -37,7 +37,10 @@ const { Content } = await post.render();
         <h1 class="post-title">{post.data.title}</h1>
         <p class="post-desc">{post.data.description}</p>
         <div class="tags">
-          {post.data.tags.map(tag => <span class="tag">{tag}</span>)}
+          {post.data.tags.map(tag => (
+            <a href={`/blog/tags/${encodeURIComponent(tag)}`} class="tag">{tag}</a>
+          ))}
+          <a href="/blog/tags" class="tag tag-all">全部标签 →</a>
         </div>
       </header>
 
@@ -100,7 +103,11 @@ const { Content } = await post.render();
     border-radius: 4px;
     padding: 0.15rem 0.5rem;
     color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
   }
+  .tag:hover { color: var(--color-accent); border-color: var(--color-accent); }
+  .tag-all { color: var(--color-text-muted); opacity: 0.7; }
 
   /* ===== Article Prose Styles ===== */
   .post-content { line-height: 1.8; }

@@ -1,0 +1,150 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog', ({ data }) => !data.draft);
+
+// 统计每个标签的文章数
+const tagCounts: Record<string, number> = {};
+for (const post of posts) {
+  for (const tag of post.data.tags) {
+    tagCounts[tag] = (tagCounts[tag] ?? 0) + 1;
+  }
+}
+
+// 按频次降序排列，频次相同时按字母顺序
+const tags = Object.entries(tagCounts).sort(
+  (a, b) => b[1] - a[1] || a[0].localeCompare(b[0])
+);
+
+const maxCount = tags[0]?.[1] ?? 1;
+const totalPosts = posts.length;
+---
+
+<BaseLayout
+  title="Tags · Ray Huang Blog"
+  description="按标签浏览 Ray Huang 的所有博文。"
+>
+  <main class="tags-page">
+    <div class="container">
+
+      <div class="page-header">
+        <h1 class="page-title">
+          <span class="prompt">❯</span>
+          <span class="cmd"> ls blog/tags/</span>
+        </h1>
+        <p class="page-desc">
+          共 <span class="accent">{tags.length}</span> 个标签，
+          <span class="accent">{totalPosts}</span> 篇文章
+        </p>
+      </div>
+
+      {tags.length === 0 ? (
+        <div class="empty">
+          <span class="prompt">❯</span>
+          <span class="muted"> No tags yet.</span>
+        </div>
+      ) : (
+        <ul class="tag-cloud" aria-label="标签云">
+          {tags.map(([tag, count]) => {
+            // 根据频次映射字号 (0.78rem → 1.1rem)
+            const scale = count / maxCount;
+            const fontSize = 0.78 + scale * 0.32;
+            return (
+              <li>
+                <a
+                  href={`/blog/tags/${encodeURIComponent(tag)}`}
+                  class="tag-item"
+                  style={`font-size: ${fontSize.toFixed(2)}rem;`}
+                  title={`${count} 篇文章`}
+                >
+                  {tag}
+                  <span class="tag-count">{count}</span>
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+
+      <div class="back-link">
+        <a href="/blog">
+          <span class="prompt">❯</span>
+          <span class="cmd"> cd ../blog</span>
+        </a>
+      </div>
+
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .tags-page { padding: 3rem 1.5rem; min-height: calc(100vh - 52px); }
+  .container  { max-width: 780px; margin: 0 auto; }
+
+  .page-header { margin-bottom: 2.5rem; }
+  .page-title {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    margin-bottom: 0.6rem;
+  }
+  .page-title .prompt { color: var(--color-green); margin-right: 0.3rem; }
+  .page-desc { color: var(--color-text-muted); font-size: 0.9rem; }
+  .accent { color: var(--color-accent); font-weight: 600; }
+
+  .tag-cloud {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem 0.5rem;
+    padding: 1.75rem;
+    background: var(--color-bg-2);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    margin-bottom: 2rem;
+    align-items: baseline;
+  }
+
+  .tag-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-mono);
+    color: var(--color-text-muted);
+    background: var(--color-bg-3);
+    border: 1px solid var(--color-border);
+    border-radius: 5px;
+    padding: 0.2rem 0.55rem;
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    line-height: 1.5;
+  }
+  .tag-item:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+    background: rgba(88, 166, 255, 0.08);
+    transform: none;
+  }
+
+  .tag-count {
+    font-size: 0.68em;
+    color: var(--color-text-muted);
+    background: rgba(255,255,255,0.06);
+    border-radius: 3px;
+    padding: 0 0.3em;
+    line-height: 1.6;
+  }
+
+  .back-link {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+  }
+  .back-link a { text-decoration: none; color: var(--color-text-muted); transition: color 0.2s; }
+  .back-link a:hover { color: var(--color-accent); }
+  .back-link .prompt { color: var(--color-green); margin-right: 0.3rem; }
+
+  .empty { font-family: var(--font-mono); font-size: 0.9rem; padding: 2rem 0; }
+  .empty .prompt { color: var(--color-green); margin-right: 0.3rem; }
+  .empty .muted  { color: var(--color-text-muted); }
+</style>
