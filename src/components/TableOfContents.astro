@@ -1,0 +1,121 @@
+---
+// TableOfContents: right sidebar with anchor links, active heading highlighting
+// Reads headings from the rendered post-content element via client-side JS
+---
+
+<aside id="toc-sidebar" class="toc-sidebar">
+  <div class="toc-title">目录</div>
+  <nav id="toc-nav" class="toc-nav"></nav>
+</aside>
+
+<script>
+  function initToc() {
+    const nav = document.getElementById('toc-nav');
+    const sidebar = document.getElementById('toc-sidebar');
+    const content = document.querySelector('.post-content');
+    if (!nav || !sidebar || !content) return;
+
+    const headings = content.querySelectorAll('h2, h3');
+    if (headings.length === 0) { sidebar.style.display = 'none'; return; }
+
+    // Ensure headings have IDs
+    headings.forEach((h, i) => {
+      if (!h.id) h.id = 'heading-' + i;
+    });
+
+    // Build TOC
+    nav.innerHTML = Array.from(headings).map(h =>
+      `<a href="#${h.id}" class="toc-link toc-${h.tagName.toLowerCase()}" data-target="${h.id}">${h.textContent}</a>`
+    ).join('');
+
+    // IntersectionObserver for active state
+    let activeId = '';
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) activeId = entry.target.id;
+      });
+      nav.querySelectorAll('.toc-link').forEach(link => {
+        link.classList.toggle('active', (link as HTMLElement).dataset.target === activeId);
+      });
+    }, { rootMargin: '-52px 0px -70% 0px', threshold: 0 });
+
+    headings.forEach(h => observer.observe(h));
+
+    // Smooth scroll on click
+    nav.addEventListener('click', (e) => {
+      const target = (e.target as HTMLElement).closest('.toc-link') as HTMLAnchorElement | null;
+      if (!target) return;
+      e.preventDefault();
+      const el = document.getElementById(target.dataset.target || '');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+  initToc();
+  document.addEventListener('astro:after-swap', initToc);
+</script>
+
+<style>
+  .toc-sidebar {
+    position: fixed;
+    top: 80px;
+    right: calc((100vw - 900px) / 2 - 220px);
+    width: 200px;
+    max-height: calc(100vh - 120px);
+    overflow-y: auto;
+    display: none;
+  }
+
+  @media (min-width: 1280px) {
+    .toc-sidebar { display: block; }
+  }
+
+  .toc-title {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .toc-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .toc-link {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    padding: 0.2rem 0.5rem;
+    border-left: 2px solid transparent;
+    border-radius: 0 3px 3px 0;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    line-height: 1.4;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .toc-link.toc-h3 { padding-left: 1rem; font-size: 0.68rem; }
+
+  .toc-link:hover {
+    color: var(--color-accent);
+    background: rgba(88,166,255,0.05);
+  }
+
+  .toc-link.active {
+    color: var(--color-accent);
+    border-left-color: var(--color-accent);
+    background: rgba(88,166,255,0.08);
+  }
+
+  /* Scrollbar */
+  .toc-sidebar::-webkit-scrollbar { width: 3px; }
+  .toc-sidebar::-webkit-scrollbar-thumb { background: var(--color-bg-3); border-radius: 2px; }
+</style>

@@ -3,6 +3,8 @@
 // Dark terminal aesthetic — primary color: #58a6ff (GitHub blue)
 import Nav from '@components/Nav.astro';
 import Footer from '@components/Footer.astro';
+import Search from '@components/Search.astro';
+import ThemeToggle from '@components/ThemeToggle.astro';
 import { ViewTransitions } from 'astro:transitions';
 
 export interface Props {
@@ -56,8 +58,23 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site).href : undefined;
         --color-border:    #30363d;
         --color-green:     #3fb950;
         --color-yellow:    #e3b341;
+        --nav-bg-rgb:      13, 17, 23;
         --font-mono:       'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
         --font-sans:       'Inter', system-ui, -apple-system, sans-serif;
+      }
+
+      :root[data-theme="light"] {
+        --color-bg:        #ffffff;
+        --color-bg-2:      #f6f8fa;
+        --color-bg-3:      #e1e4e8;
+        --color-accent:    #0969da;
+        --color-accent-2:  #0550ae;
+        --color-text:      #1f2328;
+        --color-text-muted:#656d76;
+        --color-border:    #d0d7de;
+        --color-green:     #1a7f37;
+        --color-yellow:    #9a6700;
+        --nav-bg-rgb:      255, 255, 255;
       }
 
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -99,5 +116,6 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site).href : undefined;
     <Nav />
     <slot />
     <Footer />
+    <Search />
   </body>
 </html>

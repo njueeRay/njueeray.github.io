@@ -1,0 +1,80 @@
+---
+// Giscus: GitHub Discussions-based comment system
+// Bound to njueeRay/njueeray.github.io repo
+// Users must configure: repo ID and category ID via giscus.app
+---
+
+<section class="giscus-wrapper">
+  <h2 class="comments-title">评论</h2>
+  <div class="giscus"></div>
+</section>
+
+<script>
+  function loadGiscus() {
+    const container = document.querySelector('.giscus');
+    if (!container || container.querySelector('iframe')) return;
+
+    // Detect current theme
+    const theme = document.documentElement.getAttribute('data-theme') === 'light'
+      ? 'light'
+      : 'dark_dimmed';
+
+    const script = document.createElement('script');
+    script.src = 'https://giscus.app/client.js';
+    script.setAttribute('data-repo', 'njueeRay/njueeray.github.io');
+    script.setAttribute('data-repo-id', 'R_kgDORYROOA');  // njueeRay/njueeray.github.io
+    script.setAttribute('data-category', 'Announcements');
+    script.setAttribute('data-category-id', 'DIC_kwDORYROOM4C3Qdo');  // Announcements
+    script.setAttribute('data-mapping', 'pathname');
+    script.setAttribute('data-strict', '0');
+    script.setAttribute('data-reactions-enabled', '1');
+    script.setAttribute('data-emit-metadata', '0');
+    script.setAttribute('data-input-position', 'top');
+    script.setAttribute('data-theme', theme);
+    script.setAttribute('data-lang', 'zh-CN');
+    script.setAttribute('data-loading', 'lazy');
+    script.crossOrigin = 'anonymous';
+    script.async = true;
+    container.appendChild(script);
+  }
+
+  // Listen for theme changes to update Giscus theme
+  function updateGiscusTheme() {
+    const iframe = document.querySelector<HTMLIFrameElement>('.giscus iframe');
+    if (!iframe) return;
+    const theme = document.documentElement.getAttribute('data-theme') === 'light'
+      ? 'light'
+      : 'dark_dimmed';
+    iframe.contentWindow?.postMessage(
+      { giscus: { setConfig: { theme } } },
+      'https://giscus.app'
+    );
+  }
+
+  // Observe data-theme changes
+  const observer = new MutationObserver(mutations => {
+    mutations.forEach(m => {
+      if (m.attributeName === 'data-theme') updateGiscusTheme();
+    });
+  });
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  loadGiscus();
+  document.addEventListener('astro:after-swap', loadGiscus);
+</script>
+
+<style>
+  .giscus-wrapper {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .comments-title {
+    font-family: var(--font-mono);
+    font-size: 0.88rem;
+    color: var(--color-text-muted);
+    margin-bottom: 1rem;
+    font-weight: 500;
+  }
+</style>

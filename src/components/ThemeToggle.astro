@@ -1,0 +1,76 @@
+---
+// ThemeToggle: dark/light manual toggle, persisted to localStorage, follows system preference
+---
+
+<button id="theme-toggle" class="theme-toggle" title="切换暗色/亮色主题" aria-label="Toggle theme">
+  <svg id="theme-icon-dark" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M21.752 15.002A9.718 9.718 0 0118 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 003 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 009.002-5.998z"/>
+  </svg>
+  <svg id="theme-icon-light" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none;">
+    <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zm11.394-5.834a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591zM18 12a.75.75 0 01.75-.75H21a.75.75 0 010 1.5h-2.25A.75.75 0 0118 12zM17.303 16.242a.75.75 0 011.06 1.061l-1.59 1.591a.75.75 0 01-1.061-1.06l1.59-1.591z"/>
+  </svg>
+</button>
+
+<script is:inline>
+  // Runs synchronously before paint to prevent FOUC
+  (function() {
+    const stored = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    const theme = stored || (prefersDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    updateIcons(theme);
+
+    function updateIcons(t) {
+      var d = document.getElementById('theme-icon-dark');
+      var l = document.getElementById('theme-icon-light');
+      if (d) d.style.display = t === 'dark' ? 'block' : 'none';
+      if (l) l.style.display = t === 'light' ? 'block' : 'none';
+    }
+
+    function toggle() {
+      var current = document.documentElement.getAttribute('data-theme') || 'dark';
+      var next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('theme', next);
+      updateIcons(next);
+    }
+
+    // Defer button binding to ensure DOM ready
+    function bind() {
+      var btn = document.getElementById('theme-toggle');
+      if (btn) btn.addEventListener('click', toggle);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bind);
+    } else {
+      bind();
+    }
+
+    // Re-bind after View Transitions
+    document.addEventListener('astro:after-swap', function() {
+      var t = localStorage.getItem('theme') || 'dark';
+      document.documentElement.setAttribute('data-theme', t);
+      updateIcons(t);
+      bind();
+    });
+  })();
+</script>
+
+<style>
+  .theme-toggle {
+    background: none;
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    padding: 0.3rem 0.45rem;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    display: flex;
+    align-items: center;
+    transition: color 0.2s, border-color 0.2s;
+  }
+  .theme-toggle:hover {
+    color: var(--color-accent);
+    border-color: var(--color-accent);
+  }
+</style>

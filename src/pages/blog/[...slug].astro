@@ -1,5 +1,8 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
+import ReadingProgress from '@components/ReadingProgress.astro';
+import TableOfContents from '@components/TableOfContents.astro';
+import Giscus from '@components/Giscus.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -15,6 +18,7 @@ const { Content } = await post.render();
 ---
 
 <BaseLayout title={`${post.data.title} · Ray Huang`} description={post.data.description}>
+  <ReadingProgress />
   <article class="post">
     <div class="container">
       <div class="post-nav">
@@ -47,8 +51,11 @@ const { Content } = await post.render();
       <div class="post-content">
         <Content />
       </div>
+
+      <Giscus />
     </div>
   </article>
+  <TableOfContents />
 </BaseLayout>
 
 <style>

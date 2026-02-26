@@ -1,0 +1,42 @@
+---
+// ReadingProgress: thin accent-colored bar at the top showing scroll progress
+---
+
+<div id="reading-progress" class="reading-progress" aria-hidden="true">
+  <div id="reading-progress-bar" class="reading-progress-bar"></div>
+</div>
+
+<script>
+  function initProgress() {
+    const bar = document.getElementById('reading-progress-bar');
+    if (!bar) return;
+    function update() {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const pct = docHeight > 0 ? Math.min((scrollTop / docHeight) * 100, 100) : 0;
+      bar!.style.width = pct + '%';
+    }
+    window.addEventListener('scroll', update, { passive: true });
+    update();
+  }
+  initProgress();
+  document.addEventListener('astro:after-swap', initProgress);
+</script>
+
+<style>
+  .reading-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    height: 3px;
+    background: transparent;
+  }
+  .reading-progress-bar {
+    height: 100%;
+    width: 0%;
+    background: var(--color-accent);
+    transition: width 0.1s linear;
+  }
+</style>
