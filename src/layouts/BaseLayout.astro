@@ -110,6 +110,11 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site).href : undefined;
       ::-webkit-scrollbar-track { background: var(--color-bg-2); }
       ::-webkit-scrollbar-thumb { background: var(--color-bg-3); border-radius: 4px; }
       ::-webkit-scrollbar-thumb:hover { background: var(--color-accent-2); }
+
+      /* Bilingual content toggle */
+      html:not([data-lang]) .lang-en,
+      html[data-lang="zh"] .lang-en { display: none; }
+      html[data-lang="en"] .lang-zh { display: none; }
     </style>
   </head>
   <body>

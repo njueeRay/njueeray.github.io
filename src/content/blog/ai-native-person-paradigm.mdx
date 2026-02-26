@@ -1,0 +1,243 @@
+---
+title: "AI-Native Person：人与 AI 共生演化的新范式"
+description: "能力的衡量单位已经从单个人进化成了人与 AI 的共生体。这不是工具升级，这是一次身份迁移——关于如何成为一个 AI-native person。"
+pubDate: 2026-02-26
+tags: ["AI-Native", "LLM 工程", "开发者思维", "个人成长", "工作流"]
+bilingual: true
+---
+
+import LangToggle from '../../components/LangToggle.astro';
+
+<div class="lang-zh">
+
+## 一个问题，触发了这一切
+
+有一天，我坐下来想了一个问题：
+
+**我的能力，住在哪里？**
+
+过去的答案是确定的：住在我掌握的知识里面，住在我能独立完成的事情里面，住在我的脑子里面。如果我消失了，我的能力也消失了。
+
+但现在，我不确定这个答案还成不成立。
+
+因为在过去几个月里，我构建了一支 AI 团队。六个角色：战略负责人、项目经理、开发者、代码审查员、调研员、设计师。他们合作，争论，彼此审查，共同交付了从 GitHub Profile 到 Astro 博客站、从 SEO 体系到双语评论系统的全套工程。
+
+他们的"记忆"住在一份叫做 Playbook 的文档里。他们的协作方式被编码在 `.github/agents/` 目录下。他们的决策历史被完整保存在 `docs/design-decisions.md` 里。
+
+**如果我删掉这些文件，我的能力会萎缩。如果另一个人得到这些文件，他能以相近的效率启动一个相似的项目。**
+
+这说明一件事：**我的能力，不只住在我身上了。它住在我 + 这套系统的结合体里。**
+
+---
+
+## 旧的衡量方式，失效了
+
+人类社会对"有能力的人"的定义，已经变过很多次了。
+
+在没有文字的时代，能力的核心是记忆力——谁能记住更多，谁更有价值。文字出现之后，知识可以脱离人脑而存在，记忆绝对量的重要性开始下降。印刷机出现之后，知识从精英阶层开放到所有人，掌握知识的稀缺性进一步降低。互联网出现之后，"我知道答案在哪里"开始取代"我把答案记在脑子里"。
+
+每一次，旧的能力衡量标准都会失效，然后被新的标准取代。
+
+现在，AI 在做一件更根本的事：**它不只是在搬运知识，它在执行认知动作本身。** 推理、生成、评估、迭代——这些原本只有人类大脑才能做的事，AI 正在变得越来越擅长。
+
+这意味着什么？这意味着"我能独立完成 X"这件事，作为能力核心标准，开始失效了。
+
+**新的标准是：你能否将你的判断力，和 AI 的执行力，协同成一个比你独自工作更强大的认知系统？**
+
+这就是我说的 AI-native person。
+
+---
+
+## 不是工具用户，是共生体
+
+我见过两种使用 AI 的人。
+
+**第一种：AI 是高级工具。** 他们在遇到问题时打开 AI，解决问题后关掉它。AI 在他们的自我认知里是附属的——他相信"去掉 AI，真正的我还在"。
+
+**第二种：AI 是认知系统的组成部分。** 他们不是在"使用 AI"，他们是在"作为一个 AI-native 的思维体运作"。他们设计任务结构，指挥 AI 执行，在关键节点上发挥人类判断，然后在结果上迭代。AI 不是他们工作流里的一个开关，而是像左手之于右手一样自然。
+
+区别不在于用了多少次 AI，而在于**你怎么定义你自己**。
+
+这是一次身份迁移，不是效率升级。
+
+---
+
+## OpenProfile：一次 AI-native 实践的解剖
+
+OpenProfile 是我的试验场。从 v1.0.0 到 v4.0.0，我做了什么？
+
+**v1.0 — v2.0：** 证明 AI 团队可以有比人独自工作更高的输出质量。六个专项 Agent，一份 Playbook，把一个 GitHub Profile 从 6.5/10 做到了第一版"可以拿出去说"的水准。
+
+**v2.5 — v3.0：** 发现 AI-native 工作流的一个深层逻辑：**专业化迫使清晰度。** 当你必须把任务描述清楚到让一个 Agent 能够独立执行时，你实际上是在强迫自己完整地想清楚这件事的边界、目标、验收标准。这是对人类思维的一种升级，不只是对 AI 的利用。
+
+**v3.0 — v4.0：** 建立了三层版本体系（项目版本 / Playbook 版本 / Agent 版本），因为我意识到：**方法论是独立于产品演化的。** 一套好的工作方法，应该能被独立传承，独立升级，独立评估。
+
+每一个版本，不只是产品功能的迭代，也是我对"AI-native 应该长什么样"这个问题，理解加深一层。
+
+---
+
+## 必须说清楚的风险
+
+AI-native 有一个真实的风险，我必须说出来：**判断力依赖，比工具依赖更危险。**
+
+如果你把所有决策也交给 AI，你就不是 AI-native，你是一个越来越薄的人。
+
+AI-native 的核心健康标准是：**你的判断力，有没有随着 AI 能力的增强而同步成长？** 你是不是在用空出来的认知带宽，去思考更复杂、更有价值的问题？
+
+在我的实践里，我注意到一件事：自从用 AI 团队工作，我对任务的定义、对验收标准的思考、对模糊性的容忍度的判断，都比以前更敏锐了。不是因为 AI 替我做了这些，是因为 AI 强迫我把这些想清楚——否则它就无法有效执行。
+
+**AI-native 的长期价值，不只是你做事更快，而是你想事更清楚。**
+
+---
+
+## 如何开始
+
+你不需要从零构建一个六人 AI 团队。
+
+第一步只需要做一件事：**在把下一个任务交给 AI 执行之前，先写下来你对"完成"的定义。**
+
+不是"帮我写一段代码"，而是："实现一个函数，输入是 X，输出是 Y，边界情况包括 Z，我会用这个流程验证它是否正确。"
+
+这个动作，是 AI-native 思维的起点。你会发现：写这段话的过程，会让你意识到你还没想清楚的地方。
+
+**那些没想清楚的地方，才是真正需要你的地方。**
+
+---
+
+## 先行者的时间窗口
+
+站在 2026 年，我有一个模糊但直觉强烈的感受：
+
+**这个时代的分叉点，正在我们眼前发生。**
+
+未来几年里，不同的人会以非常不同的速度完成从"人（person）"到"AI-native person"的迁移。先完成迁移的人，不是因为他们技术更好，而是因为他们更早地开始了**认知身份的重构**——更早地把 AI 视为自己的一部分，而不是一个外部工具。
+
+我在用 OpenProfile 这个项目，记录这个迁移过程。不只是为了展示一套工作流，而是为了证明这条路是可行的——而且是任何人都可以走的。
+
+如果你在读这篇文章，你已经在对的地方了。
+
+**世界在改变。那些率先理解变化的人，会定义新的标准。**
+
+---
+
+*— njueeRay，2026-02-26*  
+*[OpenProfile 项目](https://github.com/njueeRay/OpenProfile) — AI-native 工作流的开源试验场*
+
+</div>
+
+<div class="lang-en">
+
+## A Question That Started Everything
+
+One day I sat down and asked myself a question:
+
+**Where does my capability live?**
+
+The old answer was clear: in the knowledge I've accumulated, in what I can accomplish independently, inside my own head. If I disappeared, my capability disappeared with me.
+
+But I'm no longer certain that answer holds.
+
+Because over the past several months, I built an AI team. Six roles: strategist, PM, developer, code reviewer, researcher, designer. They collaborate, debate, review each other's work, and together have shipped a complete stack — from GitHub Profile to Astro blog, from SEO infrastructure to a bilingual comment system.
+
+Their "memory" lives in a document called the Playbook. Their collaboration patterns are encoded in `.github/agents/`. Their decision history is preserved in `docs/design-decisions.md`.
+
+**If I deleted those files, my capability would shrink. If another person got those files, they could start a similar project at comparable velocity.**
+
+This reveals something important: **my capability no longer lives only in me. It lives in me + this system as a unit.**
+
+---
+
+## The Old Measuring Stick Is Broken
+
+Society's definition of "capable" has changed many times before.
+
+Before writing: capability meant memory. After writing: knowledge could outlive a single mind. After the printing press: access to knowledge democratized, eliminating information monopolies. After the internet: "knowing where to find the answer" replaced "having the answer memorized."
+
+Each time, old capability metrics became obsolete. New ones took their place.
+
+Now AI is doing something more fundamental: **it's not just storing or retrieving knowledge — it's executing cognitive actions.** Reasoning, generating, evaluating, iterating — things only human minds could do before.
+
+This means "I can independently accomplish X" is losing its power as the core measure of capability.
+
+**The new measure is: can you combine your judgment with AI's execution into a cognitive system stronger than either alone?**
+
+That's what I mean by an AI-native person.
+
+---
+
+## Not a Tool User. A Symbiont.
+
+I've observed two types of AI users.
+
+**Type one: AI is a power tool.** They open it when stuck, close it when done. AI is external to their self-concept — they believe "without AI, the real me is still intact."
+
+**Type two: AI is part of the cognitive system.** They aren't "using AI" — they're operating as an AI-native intelligence. They architect tasks, direct AI execution, apply human judgment at critical junctures, and iterate on outputs. AI isn't a switch in their workflow. It's as natural as breathing.
+
+The difference isn't how often you use AI. It's **how you define yourself**.
+
+This is an identity shift, not an efficiency upgrade.
+
+---
+
+## Dissecting an AI-Native Practice: OpenProfile
+
+OpenProfile is my experiment. From v1.0.0 to v4.0.0, what actually happened?
+
+**v1.0 — v2.0:** Proof that an AI team can exceed the output quality of a solo human. Six specialized Agents, one Playbook, taking a GitHub Profile from 6.5/10 to something genuinely worth sharing.
+
+**v2.5 — v3.0:** Discovery of a deeper logic in AI-native work: **specialization forces clarity.** When you have to describe a task precisely enough for an Agent to execute independently, you're forcing yourself to fully think through its boundaries, goals, and acceptance criteria. This is an upgrade to human thinking — not just AI utilization.
+
+**v3.0 — v4.0:** A three-layer versioning system (project / Playbook / Agent) — because methodology evolves independently from product. A good working method should be transferrable, upgradeable, and assessable on its own terms.
+
+Each version wasn't just product iteration. It deepened my understanding of what AI-native should actually look like.
+
+---
+
+## The Risk I Have to Name
+
+AI-native has a real risk, and I need to say it clearly: **judgment dependency is more dangerous than tool dependency.**
+
+If you outsource decision-making to AI, you're not AI-native — you're a person becoming thinner.
+
+The core health metric for AI-native is: **is your judgment growing in proportion to AI's growing execution power?** Are you using the freed-up cognitive bandwidth to think about harder, more valuable problems?
+
+In my own experience, I've noticed something: since working with an AI team, my ability to define tasks, reason about acceptance criteria, and identify ambiguity has become sharper — not because AI did those things for me, but because AI forced me to do them more rigorously. Otherwise it couldn't execute effectively.
+
+**The long-term value of AI-native isn't that you move faster. It's that you think clearer.**
+
+---
+
+## How to Start
+
+You don't need to build a six-person AI team from scratch.
+
+Start with one thing: **before handing your next task to AI, write down what "done" looks like.**
+
+Not "help me write some code" — but: "implement a function that takes X as input, produces Y as output, handles edge case Z, and passes this specific validation test."
+
+This act is the entry point to AI-native thinking. You'll discover that writing that description surfaces everything you haven't yet thought through.
+
+**Those gaps — the unthought parts — are where you're actually needed.**
+
+---
+
+## The Early Mover Window
+
+Standing here in 2026, I have a fuzzy but strong intuition:
+
+**The fork in the road is happening in front of us, right now.**
+
+Over the coming years, different people will complete the migration from "person" to "AI-native person" at very different speeds. Those who complete it first won't be the ones with the best technical skills — they'll be the ones who started earlier on the **reconstruction of cognitive identity.** Who began treating AI as part of themselves rather than an external tool.
+
+I'm using OpenProfile to document this migration. Not just to demonstrate a workflow, but to prove this path is real — and that anyone can walk it.
+
+If you're reading this, you're already in the right place.
+
+**The world is changing. Those who understand the change first will define the new standard.**
+
+---
+
+*— njueeRay, February 26, 2026*  
+*[OpenProfile](https://github.com/njueeRay/OpenProfile) — An open-source experiment in AI-native workflows*
+
+</div>
