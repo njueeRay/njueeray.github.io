@@ -11,11 +11,16 @@ export interface Props {
   title: string;
   description?: string;
   ogImage?: string;
+  /** JSON-LD structured data object(s) — injected as application/ld+json */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** hreflang alternate links: [{ hreflang, href }] */
+  hreflangLinks?: { hreflang: string; href: string }[];
 }
 
 const canonicalURL = new URL(Astro.url.pathname, Astro.site);
-const { title, description = "Ray Huang — Open Source Programmer, LLM Engineer, Full-Stack Developer", ogImage } = Astro.props;
+const { title, description = "Ray Huang — Open Source Programmer, LLM Engineer, Full-Stack Developer", ogImage, jsonLd, hreflangLinks } = Astro.props;
 const ogImageURL = ogImage ? new URL(ogImage, Astro.site).href : undefined;
+const jsonLdStr = jsonLd ? JSON.stringify(Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : null;
 ---
 
 <!doctype html>
@@ -30,6 +35,11 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site).href : undefined;
     <link rel="sitemap" href="/sitemap-index.xml" />
     <link rel="alternate" type="application/rss+xml" title="Ray Huang · Blog" href="/rss.xml" />
 
+    <!-- hreflang alternate links (bilingual SEO) -->
+    {hreflangLinks?.map(l => (
+      <link rel="alternate" hreflang={l.hreflang} href={l.href} />
+    ))}
+
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonicalURL} />
@@ -43,6 +53,9 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site).href : undefined;
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     {ogImageURL && <meta name="twitter:image" content={ogImageURL} />}
+
+    <!-- JSON-LD Structured Data -->
+    {jsonLdStr && <script type="application/ld+json" set:html={jsonLdStr} />}
 
     <title>{title}</title>
     <ViewTransitions />

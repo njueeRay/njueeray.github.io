@@ -5,9 +5,37 @@ import About from '@components/About.astro';
 import TechStack from '@components/TechStack.astro';
 import Projects from '@components/Projects.astro';
 import Contact from '@components/Contact.astro';
+
+const siteUrl = 'https://njueeray.github.io';
+
+const personSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: 'Ray Huang',
+  url: siteUrl,
+  sameAs: [
+    'https://github.com/njueeRay',
+  ],
+  jobTitle: 'Open Source Programmer / LLM Engineer / Full-Stack Developer',
+  description: 'AI-Native 开发者，探索人类判断力 × AI 执行力的协同极限。',
+  knowsAbout: ['Python', 'TypeScript', 'LLM', 'AI-native development', 'Full-stack development'],
+};
+
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Ray Huang',
+  url: siteUrl,
+  description: 'Ray Huang 的个人主页 — Open Source Programmer, LLM Engineer, Full-Stack Developer',
+  author: { '@type': 'Person', name: 'Ray Huang' },
+};
 ---
 
-<BaseLayout title="Ray Huang · njueeray" description="Open Source Programmer, LLM Engineer, Full-Stack Developer. AI-Native 开发实践者。">
+<BaseLayout
+  title="Ray Huang · njueeray"
+  description="Open Source Programmer, LLM Engineer, Full-Stack Developer. AI-Native 开发实践者。"
+  jsonLd={[personSchema, websiteSchema]}
+>
   <Hero />
   <About />
   <TechStack />

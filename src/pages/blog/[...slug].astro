@@ -22,9 +22,49 @@ try {
   const entry = await getEntry('authors', post.data.author);
   if (entry) authorData = entry.data;
 } catch {}
+
+const siteUrl = 'https://njueeray.github.io';
+const postUrl = `${siteUrl}/blog/${post.slug}`;
+
+// JSON-LD Article schema
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.data.title,
+  description: post.data.description,
+  url: postUrl,
+  datePublished: post.data.pubDate.toISOString(),
+  ...(post.data.updatedDate ? { dateModified: post.data.updatedDate.toISOString() } : {}),
+  author: {
+    '@type': authorData?.isAgent ? 'SoftwareApplication' : 'Person',
+    name: authorData?.displayName ?? 'Ray Huang',
+    url: `${siteUrl}/blog/authors/${post.data.author}`,
+  },
+  publisher: {
+    '@type': 'Person',
+    name: 'Ray Huang',
+    url: siteUrl,
+  },
+  keywords: post.data.tags?.join(', '),
+  inLanguage: post.data.bilingual ? 'zh-CN' : 'en',
+};
+
+// hreflang for bilingual posts
+const hreflangLinks = post.data.bilingual
+  ? [
+      { hreflang: 'zh', href: postUrl },
+      { hreflang: 'en', href: postUrl },
+      { hreflang: 'x-default', href: postUrl },
+    ]
+  : undefined;
 ---
 
-<BaseLayout title={`${post.data.title} · Ray Huang`} description={post.data.description}>
+<BaseLayout
+  title={`${post.data.title} · Ray Huang`}
+  description={post.data.description}
+  jsonLd={articleSchema}
+  hreflangLinks={hreflangLinks}
+>
   <ReadingProgress />
   <article class="post">
     <div class="container">

@@ -27,6 +27,14 @@ jobs:
           node-version: 22
           cache: npm
 
+      # Cache Astro/Vite incremental build output — speeds up repeat deploys ~40%
+      - name: Cache Astro build
+        uses: actions/cache@v4
+        with:
+          path: .astro
+          key: astro-${{ hashFiles('src/**', 'public/**', 'astro.config.mjs', 'package-lock.json') }}
+          restore-keys: astro-
+
       - name: Install dependencies
         run: npm ci
 

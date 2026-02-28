@@ -1,0 +1,54 @@
+name: Accessibility (axe-core)
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  axe:
+    name: axe-core audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Cache Astro build
+        uses: actions/cache@v4
+        with:
+          path: .astro
+          key: astro-${{ hashFiles('src/**', 'public/**', 'astro.config.mjs', 'package-lock.json') }}
+          restore-keys: astro-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build site
+        run: npm run build
+
+      # Serve dist and run axe-core CLI against key pages
+      - name: Install serve and axe-core CLI
+        run: npm install -g serve @axe-core/cli
+
+      - name: Start static server
+        run: serve dist -p 4173 &
+        shell: bash
+
+      - name: Wait for server
+        run: sleep 3
+
+      - name: Run axe-core on homepage
+        run: axe http://localhost:4173 --exit
+
+      - name: Run axe-core on blog index
+        run: axe http://localhost:4173/blog --exit
+
+      - name: Run axe-core on team page
+        run: axe http://localhost:4173/team --exit
