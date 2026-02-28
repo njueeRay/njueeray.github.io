@@ -15,8 +15,8 @@
   // Runs synchronously before paint to prevent FOUC
   (function() {
     const stored = localStorage.getItem('theme');
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    const theme = stored || (prefersDark ? 'dark' : 'light');
+    // Default to dark regardless of system preference on first visit
+    const theme = stored || 'dark';
     document.documentElement.setAttribute('data-theme', theme);
     updateIcons(theme);
 
