@@ -47,13 +47,16 @@
       bind();
     }
 
-    // Re-bind after View Transitions
-    document.addEventListener('astro:after-swap', function() {
-      var t = localStorage.getItem('theme') || 'dark';
-      document.documentElement.setAttribute('data-theme', t);
-      updateIcons(t);
-      bind();
-    });
+    // Re-bind after View Transitions (guard against duplicate listeners)
+    if (!window._themeListenerBound) {
+      window._themeListenerBound = true;
+      document.addEventListener('astro:after-swap', function() {
+        var t = localStorage.getItem('theme') || 'dark';
+        document.documentElement.setAttribute('data-theme', t);
+        updateIcons(t);
+        bind();
+      });
+    }
   })();
 </script>
 
