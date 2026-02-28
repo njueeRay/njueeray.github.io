@@ -11,6 +11,9 @@ const blog = defineCollection({
     draft: z.boolean().default(false),
     bilingual: z.boolean().default(false),
     author: z.string().default('njueeray'),
+    // 内容风格分类（taste-level，非主题标签）
+    // insight: 思想笔记 | technical: 技术实录 | member-essay: 成员随笔 | meeting: 会议纪实
+    contentType: z.enum(['insight', 'technical', 'member-essay', 'meeting']).default('insight'),
   }),
 });
 

@@ -5,7 +5,7 @@ import { getCollection, getEntry } from 'astro:content';
 const posts = (await getCollection('blog', ({ data }) => !data.draft))
   .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
 
-// 预加载所有用到的作者信息（仅加载非默认作者，减少请求）
+// 预加载所有用到的作者信息
 const authorMap = new Map<string, { displayName: string; avatar?: string; isAgent: boolean }>();
 for (const post of posts) {
   const authorId = post.data.author;
@@ -15,6 +15,19 @@ for (const post of posts) {
       if (entry) authorMap.set(authorId, entry.data);
     } catch {}
   }
+}
+
+const typeConfig = {
+  insight:      { label: '思想笔记', icon: '🔬', color: 'type-insight' },
+  technical:    { label: '技术实录', icon: '🛠️', color: 'type-technical' },
+  'member-essay': { label: '成员随笔', icon: '✍️', color: 'type-member' },
+  meeting:      { label: '会议纪实', icon: '📋', color: 'type-meeting' },
+} as const;
+
+const counts = { all: posts.length, insight: 0, technical: 0, 'member-essay': 0, meeting: 0 };
+for (const p of posts) {
+  const t = p.data.contentType as keyof typeof counts;
+  if (t in counts) counts[t]++;
 }
 ---
 
@@ -32,39 +45,65 @@ for (const post of posts) {
         </p>
       </div>
 
-      <ul class="posts">
-        {posts.map(post => (
-          <li class="post-item">
-            <a href={`/blog/${post.slug}`} class="post-link">
-              <div class="post-meta">
-                <time datetime={post.data.pubDate.toISOString()}>
-                  {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-                </time>
-                {(() => {
-                  const a = authorMap.get(post.data.author);
-                  if (!a) return null;
-                  return (
-                    <a href={`/blog/authors/${post.data.author}`} class="author-chip">
-                      {a.avatar && <span class="author-emoji">{a.avatar}</span>}
-                      <span>{a.displayName}</span>
-                      {a.isAgent && <span class="agent-dot" title="AI Agent">●</span>}
-                    </a>
-                  );
-                })()}
+      <!-- Filter tabs -->
+      <div class="filter-bar" id="filter-bar">
+        <button class="filter-tab active" data-filter="all">
+          全部 <span class="count">{counts.all}</span>
+        </button>
+        <button class="filter-tab" data-filter="insight">
+          {typeConfig.insight.icon} {typeConfig.insight.label} <span class="count">{counts.insight}</span>
+        </button>
+        <button class="filter-tab" data-filter="technical">
+          {typeConfig.technical.icon} {typeConfig.technical.label} <span class="count">{counts.technical}</span>
+        </button>
+        <button class="filter-tab" data-filter="member-essay">
+          {typeConfig['member-essay'].icon} {typeConfig['member-essay'].label} <span class="count">{counts['member-essay']}</span>
+        </button>
+        <button class="filter-tab" data-filter="meeting">
+          {typeConfig.meeting.icon} {typeConfig.meeting.label} <span class="count">{counts.meeting}</span>
+        </button>
+      </div>
+
+      <ul class="posts" id="posts-list">
+        {posts.map(post => {
+          const ct = post.data.contentType as keyof typeof typeConfig;
+          const typeMeta = typeConfig[ct];
+          return (
+            <li class="post-item" data-type={ct}>
+              <a href={`/blog/${post.slug}`} class="post-link">
+                <div class="post-meta">
+                  <span class={`type-badge ${typeMeta.color}`}>
+                    {typeMeta.icon} {typeMeta.label}
+                  </span>
+                  <time datetime={post.data.pubDate.toISOString()}>
+                    {post.data.pubDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </time>
+                  {(() => {
+                    const a = authorMap.get(post.data.author);
+                    if (!a) return null;
+                    return (
+                      <a href={`/blog/authors/${post.data.author}`} class="author-chip" onclick="event.stopPropagation()">
+                        {a.avatar && <span class="author-emoji">{a.avatar}</span>}
+                        <span>{a.displayName}</span>
+                        {a.isAgent && <span class="agent-dot" title="AI Agent">●</span>}
+                      </a>
+                    );
+                  })()}
+                </div>
+                <h2 class="post-title">{post.data.title}</h2>
+                <p class="post-desc">{post.data.description}</p>
+              </a>
+              <div class="post-tags">
+                {post.data.tags.slice(0, 4).map(tag => (
+                  <a
+                    href={`/blog/tags/${encodeURIComponent(tag)}`}
+                    class="tag"
+                  >{tag}</a>
+                ))}
               </div>
-              <h2 class="post-title">{post.data.title}</h2>
-              <p class="post-desc">{post.data.description}</p>
-            </a>
-            <div class="post-tags">
-              {post.data.tags.slice(0, 4).map(tag => (
-                <a
-                  href={`/blog/tags/${encodeURIComponent(tag)}`}
-                  class="tag"
-                >{tag}</a>
-              ))}
-            </div>
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
 
       {posts.length === 0 && (
@@ -73,15 +112,68 @@ for (const post of posts) {
           <span class="muted"> No posts yet. Check back soon.</span>
         </div>
       )}
+
+      <div class="filter-empty" id="filter-empty" style="display:none">
+        <span class="prompt">❯</span>
+        <span class="muted"> 该分类暂无文章。</span>
+      </div>
     </div>
   </main>
 </BaseLayout>
+
+<script is:inline>
+  (function () {
+    function applyFilter(filter) {
+      const items = document.querySelectorAll('#posts-list .post-item');
+      let visible = 0;
+      items.forEach(function (item) {
+        const match = filter === 'all' || item.getAttribute('data-type') === filter;
+        item.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      const empty = document.getElementById('filter-empty');
+      if (empty) empty.style.display = visible === 0 ? '' : 'none';
+
+      // update active tab
+      document.querySelectorAll('#filter-bar .filter-tab').forEach(function (tab) {
+        tab.classList.toggle('active', tab.getAttribute('data-filter') === filter);
+      });
+
+      // sync URL hash
+      if (filter === 'all') {
+        history.replaceState(null, '', window.location.pathname);
+      } else {
+        history.replaceState(null, '', '#' + filter);
+      }
+    }
+
+    function init() {
+      document.querySelectorAll('#filter-bar .filter-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          applyFilter(tab.getAttribute('data-filter'));
+        });
+      });
+
+      // restore from hash
+      var hash = window.location.hash.replace('#', '');
+      var valid = ['insight', 'technical', 'member-essay', 'meeting'];
+      if (valid.indexOf(hash) !== -1) applyFilter(hash);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+    document.addEventListener('astro:after-swap', init);
+  })();
+</script>
 
 <style>
   .blog-list { padding: 3rem 1.5rem; min-height: calc(100vh - 52px); }
   .container  { max-width: 780px; margin: 0 auto; }
 
-  .page-header { margin-bottom: 2.5rem; }
+  .page-header { margin-bottom: 1.75rem; }
   .page-title {
     font-family: var(--font-mono);
     font-size: 1rem;
@@ -98,6 +190,40 @@ for (const post of posts) {
   }
   .tags-link:hover { color: var(--color-accent); }
 
+  /* ── Filter bar ─────────────────────────────── */
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.75rem;
+  }
+  .filter-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: 20px;
+    border: 1px solid var(--color-border);
+    background: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    white-space: nowrap;
+  }
+  .filter-tab:hover { color: var(--color-accent); border-color: var(--color-accent); }
+  .filter-tab.active { color: var(--color-accent); border-color: var(--color-accent); background: rgba(88,166,255,0.07); }
+  .filter-tab .count {
+    font-size: 0.65rem;
+    background: var(--color-bg-3);
+    border-radius: 10px;
+    padding: 0 0.3rem;
+    color: var(--color-text-muted);
+  }
+  .filter-tab.active .count { background: rgba(88,166,255,0.15); color: var(--color-accent); }
+
+  /* ── Post list ──────────────────────────────── */
   .posts { list-style: none; display: flex; flex-direction: column; gap: 1.25rem; }
 
   .post-item {
@@ -109,6 +235,12 @@ for (const post of posts) {
   }
   .post-item:hover { border-color: var(--color-accent); transform: translateY(-1px); }
 
+  /* content-type left accent */
+  .post-item[data-type="insight"]      { border-left: 3px solid #58a6ff; }
+  .post-item[data-type="technical"]    { border-left: 3px solid #3fb950; }
+  .post-item[data-type="member-essay"] { border-left: 3px solid #bc8cff; }
+  .post-item[data-type="meeting"]      { border-left: 3px solid #d29922; }
+
   .post-link {
     display: block;
     padding: 1.25rem 1.5rem 0.75rem;
@@ -117,14 +249,55 @@ for (const post of posts) {
   }
 
   .post-meta {
-    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
   }
+
+  /* ── Type badge ─────────────────────────────── */
+  .type-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+    padding: 0.1rem 0.5rem;
+    border-radius: 4px;
+    border: 1px solid;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  .type-insight      { color: #58a6ff; border-color: rgba(88,166,255,0.4);  background: rgba(88,166,255,0.08); }
+  .type-technical    { color: #3fb950; border-color: rgba(63,185,80,0.4);   background: rgba(63,185,80,0.08); }
+  .type-member       { color: #bc8cff; border-color: rgba(188,140,255,0.4); background: rgba(188,140,255,0.08); }
+  .type-meeting      { color: #d29922; border-color: rgba(210,153,34,0.4);  background: rgba(210,153,34,0.08); }
 
   time {
     font-family: var(--font-mono);
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     color: var(--color-text-muted);
   }
+
+  .author-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: 0.05rem 0.5rem;
+    transition: color 0.15s, border-color 0.15s;
+    position: relative;
+    z-index: 1;
+  }
+  .author-chip:hover { color: var(--color-accent); border-color: var(--color-accent); }
+  .author-emoji { font-style: normal; line-height: 1; }
+  .agent-dot { color: var(--color-accent); font-size: 0.55rem; }
 
   .post-tags {
     display: flex;
@@ -146,23 +319,6 @@ for (const post of posts) {
   }
   .tag:hover { color: var(--color-accent); border-color: var(--color-accent); }
 
-  .author-chip {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-family: var(--font-mono);
-    font-size: 0.7rem;
-    color: var(--color-text-muted);
-    text-decoration: none;
-    border: 1px solid var(--color-border);
-    border-radius: 20px;
-    padding: 0.05rem 0.5rem;
-    transition: color 0.15s, border-color 0.15s;
-  }
-  .author-chip:hover { color: var(--color-accent); border-color: var(--color-accent); }
-  .author-emoji { font-style: normal; line-height: 1; }
-  .agent-dot { color: var(--color-accent); font-size: 0.55rem; }
-
   .post-title {
     font-size: 1.05rem;
     font-weight: 600;
@@ -172,10 +328,18 @@ for (const post of posts) {
     transition: color 0.2s;
   }
   .post-link:hover .post-title { color: var(--color-accent); }
-
   .post-desc { font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.6; }
 
-  .empty { font-family: var(--font-mono); font-size: 0.9rem; padding: 2rem 0; }
-  .empty .prompt { color: var(--color-green); margin-right: 0.3rem; }
-  .empty .muted  { color: var(--color-text-muted); }
+  .empty, .filter-empty {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    padding: 2rem 0;
+  }
+  .empty .prompt, .filter-empty .prompt { color: var(--color-green); margin-right: 0.3rem; }
+  .empty .muted, .filter-empty .muted  { color: var(--color-text-muted); }
+
+  @media (max-width: 480px) {
+    .filter-bar { gap: 0.3rem; }
+    .filter-tab { font-size: 0.7rem; padding: 0.25rem 0.6rem; }
+  }
 </style>
