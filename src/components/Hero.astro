@@ -188,4 +188,54 @@
     color: var(--color-accent);
     background: rgba(0,180,216,0.06);
   }
+
+  /* ── Terminal typewriter reveal ─────────────── */
+  @keyframes term-reveal {
+    from { opacity: 0; transform: translateX(-6px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+  .terminal-body .line {
+    opacity: 0;
+    animation: term-reveal 0.18s ease forwards;
+  }
+  /* Skip animation when user prefers reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .terminal-body .line { opacity: 1; animation: none; }
+  }
+
+  /* CTA buttons also reveal after terminal */
+  .hero-links {
+    opacity: 0;
+    animation: term-reveal 0.25s ease forwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .hero-links { opacity: 1; animation: none; }
+  }
 </style>
+
+<script>
+  function initHeroTyping() {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    const body = document.querySelector<HTMLElement>('.terminal-body');
+    const heroLinks = document.querySelector<HTMLElement>('.hero-links');
+    if (!body) return;
+
+    const lines = body.querySelectorAll<HTMLElement>('.line');
+    // Base delay: start after nav settles (300ms), each line ~200ms apart
+    const BASE = 0.3;
+    const STEP = 0.2;
+    lines.forEach((line, i) => {
+      line.style.animationDelay = `${BASE + i * STEP}s`;
+    });
+
+    // Reveal hero links after all lines
+    if (heroLinks) {
+      heroLinks.style.animationDelay = `${BASE + lines.length * STEP + 0.1}s`;
+    }
+  }
+
+  document.addEventListener('astro:page-load', initHeroTyping);
+  initHeroTyping();
+</script>

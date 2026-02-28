@@ -48,8 +48,11 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site).href : undefined;
     <ViewTransitions />
   </head>
   <body>
+    <a href="#main-content" class="skip-link">跳到主要内容</a>
     <Nav />
-    <slot />
+    <main id="main-content" tabindex="-1">
+      <slot />
+    </main>
     <Footer />
     <Search />
   </body>

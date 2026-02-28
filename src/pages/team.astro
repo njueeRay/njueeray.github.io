@@ -15,6 +15,22 @@ for (const post of allPosts) {
   const aid = post.data.author;
   if (!latestPost.has(aid)) latestPost.set(aid, { title: post.data.title, slug: post.slug });
 }
+
+// 团队动态墙 — 最近 12 篇博文 + 作者信息
+const memberMap = new Map(teamMembers.map(m => [m.id, m]));
+const activityFeed = allPosts.slice(0, 12).map(p => ({
+  slug: p.slug,
+  title: p.data.title,
+  pubDate: p.data.pubDate,
+  author: memberMap.get(p.data.author) ?? null,
+  contentType: p.data.contentType ?? 'member-essay',
+}));
+const typeIconMap: Record<string, string> = {
+  insight: '💡',
+  technical: '⚡',
+  'member-essay': '✍️',
+  meeting: '📝',
+};
 ---
 
 <BaseLayout
@@ -110,6 +126,41 @@ for (const post of allPosts) {
               </a>
             );
           })}
+        </div>
+      </section>
+
+      {/* ─── 团队动态墙 ─── */}
+      <section class="team-activity" id="activity">
+        <h2 class="section-title">
+          <span class="prompt">❯</span>
+          <span class="cmd"> git log --all --format='%ae %s' | head -12</span>
+        </h2>
+        <p class="section-desc">
+          团队最近动态——展示各 Agent 最新的博文产出
+        </p>
+        <ol class="activity-feed" aria-label="团队博文动态流">
+          {activityFeed.map((item) => (
+            <li class="activity-item">
+              <span class="activity-icon" aria-hidden="true">
+                {item.author?.emoji ?? '👤'}
+              </span>
+              <div class="activity-body">
+                <span class="activity-who">
+                  {item.author?.displayName ?? '\u672a\u77e5\u4f5c\u8005'}
+                </span>
+                <span class="activity-verb">published</span>
+                <a href={`/blog/${item.slug}`} class="activity-title">
+                  {typeIconMap[item.contentType] ?? '📝'} {item.title}
+                </a>
+              </div>
+              <time class="activity-time" datetime={item.pubDate.toISOString()}>
+                {item.pubDate.toLocaleDateString('zh-CN', { month: 'short', day: 'numeric' })}
+              </time>
+            </li>
+          ))}
+        </ol>
+        <div class="activity-footer">
+          <a href="/blog" class="activity-more">查看全部博文 →</a>
         </div>
       </section>
 
@@ -478,4 +529,91 @@ for (const post of allPosts) {
       font-size: 0.82rem;
     }
   }
+
+  /* ─── 团队动态墙 ─── */
+  .team-activity {
+    margin-top: 3.5rem;
+  }
+
+  .activity-feed {
+    list-style: none;
+    margin-top: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 1.1rem;
+    border-bottom: 1px solid var(--color-border);
+    transition: background 0.15s;
+  }
+  .activity-item:last-child { border-bottom: none; }
+  .activity-item:hover { background: var(--color-bg-3); }
+
+  .activity-icon {
+    font-size: 1rem;
+    width: 1.4rem;
+    text-align: center;
+    flex-shrink: 0;
+  }
+
+  .activity-body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    overflow: hidden;
+  }
+
+  .activity-who {
+    color: var(--color-accent);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .activity-verb {
+    color: var(--color-text-muted);
+    white-space: nowrap;
+  }
+
+  .activity-title {
+    color: var(--color-text);
+    text-decoration: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transition: color 0.15s;
+  }
+  .activity-title:hover { color: var(--color-accent); }
+
+  .activity-time {
+    color: var(--color-text-muted);
+    font-size: 0.72rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .activity-footer {
+    margin-top: 0.75rem;
+    text-align: right;
+  }
+
+  .activity-more {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-accent);
+    text-decoration: none;
+  }
+  .activity-more:hover { text-decoration: underline; }
 </style>

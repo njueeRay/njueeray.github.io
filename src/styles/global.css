@@ -100,6 +100,38 @@ html:not([data-lang]) .lang-en,
 html[data-lang="zh"] .lang-en { display: none; }
 html[data-lang="en"] .lang-zh { display: none; }
 
+/* ─── Skip Link ─────────────────────────────── */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 1rem;
+  padding: 0.5rem 1rem;
+  background: var(--color-accent);
+  color: #000;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-decoration: none;
+  z-index: 10000;
+  transition: top 0.1s;
+}
+.skip-link:focus {
+  top: calc(var(--nav-h) + 0.5rem);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}
+
+/* ─── Focus Visible ─────────────────────────── */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+}
+/* Remove default :focus outline when :focus-visible is supported */
+:focus:not(:focus-visible) {
+  outline: none;
+}
+
 /* ─── Shared utilities ───────────────────────── */
 .container {
   max-width: var(--max-w);

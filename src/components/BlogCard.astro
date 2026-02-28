@@ -29,7 +29,7 @@ const typeMeta = typeConfig[contentType];
   <div class="post-link">
     <div class="post-meta">
       <span class={`type-badge ${typeMeta.color}`}>
-        {typeMeta.icon} {typeMeta.label}
+        <span class="type-icon">{typeMeta.icon}</span> {typeMeta.label}
       </span>
       <time datetime={pubDate.toISOString()}>
         {pubDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' })}
@@ -61,9 +61,13 @@ const typeMeta = typeConfig[contentType];
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     overflow: hidden;
-    transition: border-color 0.2s, transform 0.2s;
+    transition: border-color 0.2s, transform 0.15s ease, box-shadow 0.2s;
+    will-change: transform;
   }
-  .post-item:hover { border-color: var(--color-accent); transform: translateY(-1px); }
+  .post-item:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 8px 30px rgba(88,166,255,0.1);
+  }
 
   /* content-type left accent */
   .post-item[data-type="insight"]      { border-left: 3px solid var(--color-accent); }
@@ -176,4 +180,42 @@ const typeMeta = typeConfig[contentType];
   }
   .post-item:hover .post-title { color: var(--color-accent); }
   .post-desc { font-size: 0.85rem; color: var(--color-text-muted); line-height: 1.6; }
+
+  /* ── Type icon breathing animation ─────────── */
+  @keyframes breathe {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.65; transform: scale(1.2); }
+  }
+  .type-icon {
+    display: inline-block;
+    animation: breathe 2.8s ease-in-out infinite;
+  }
+  /* Pause breathing when user prefers reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .type-icon { animation: none; }
+  }
 </style>
+
+<script>
+  // 3D hover tilt — runs once after DOM is ready
+  function initCardTilt() {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (prefersReduced) return;
+
+    document.querySelectorAll<HTMLElement>('.post-item').forEach(card => {
+      card.addEventListener('mousemove', (e: MouseEvent) => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width  - 0.5;
+        const y = (e.clientY - rect.top)  / rect.height - 0.5;
+        card.style.transform = `perspective(700px) rotateX(${-y * 5}deg) rotateY(${x * 5}deg) translateZ(6px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+  }
+
+  // Support Astro View Transitions (re-init on every page navigation)
+  document.addEventListener('astro:page-load', initCardTilt);
+  initCardTilt();
+</script>
