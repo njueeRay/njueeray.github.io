@@ -47,18 +47,59 @@ const currentPath = Astro.url.pathname;
       var links  = document.getElementById('nav-links');
       if (!toggle || !links) return;
 
+      function closeMenu() {
+        links.classList.remove('open');
+        toggle.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+
+      function openMenu() {
+        links.classList.add('open');
+        toggle.classList.add('open');
+        toggle.setAttribute('aria-expanded', 'true');
+        // Focus first link after opening
+        var firstLink = links.querySelector('a, button');
+        if (firstLink) firstLink.focus();
+      }
+
       toggle.addEventListener('click', function () {
-        var open = links.classList.toggle('open');
-        toggle.classList.toggle('open', open);
-        toggle.setAttribute('aria-expanded', String(open));
+        var isOpen = links.classList.contains('open');
+        if (isOpen) {
+          closeMenu();
+          toggle.focus();
+        } else {
+          openMenu();
+        }
+      });
+
+      // Escape key closes menu
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && links.classList.contains('open')) {
+          closeMenu();
+          toggle.focus();
+        }
+      });
+
+      // Focus trap: Tab cycles within menu when open
+      links.addEventListener('keydown', function (e) {
+        if (e.key !== 'Tab' || !links.classList.contains('open')) return;
+        var focusable = links.querySelectorAll('a, button');
+        if (!focusable.length) return;
+        var first = focusable[0];
+        var last  = focusable[focusable.length - 1];
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
       });
 
       // close on link click (mobile)
       links.querySelectorAll('a').forEach(function (a) {
         a.addEventListener('click', function () {
-          links.classList.remove('open');
-          toggle.classList.remove('open');
-          toggle.setAttribute('aria-expanded', 'false');
+          closeMenu();
         });
       });
     }
