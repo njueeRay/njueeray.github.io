@@ -1,0 +1,115 @@
+---
+/**
+ * FilterTabs — horizontal pill-style filter bar for blog content types.
+ * Extracted from pages/blog/index.astro (v4.2.0 refactor).
+ * Client-side filtering via `is:inline` script.
+ */
+import { typeConfig, contentTypes, type ContentType } from '@data/content-types';
+
+export interface Props {
+  counts: Record<'all' | ContentType, number>;
+}
+
+const { counts } = Astro.props;
+---
+
+<div class="filter-bar" id="filter-bar">
+  <button class="filter-tab active" data-filter="all">
+    全部 <span class="count">{counts.all}</span>
+  </button>
+  {contentTypes.map(ct => (
+    <button class="filter-tab" data-filter={ct}>
+      {typeConfig[ct].icon} {typeConfig[ct].label} <span class="count">{counts[ct]}</span>
+    </button>
+  ))}
+</div>
+
+<script is:inline>
+  (function () {
+    function applyFilter(filter) {
+      var items = document.querySelectorAll('#posts-list .post-item');
+      var visible = 0;
+      items.forEach(function (item) {
+        var match = filter === 'all' || item.getAttribute('data-type') === filter;
+        item.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+      var empty = document.getElementById('filter-empty');
+      if (empty) empty.style.display = visible === 0 ? '' : 'none';
+
+      document.querySelectorAll('#filter-bar .filter-tab').forEach(function (tab) {
+        tab.classList.toggle('active', tab.getAttribute('data-filter') === filter);
+      });
+
+      if (filter === 'all') {
+        history.replaceState(null, '', window.location.pathname);
+      } else {
+        history.replaceState(null, '', '#' + filter);
+      }
+    }
+
+    function init() {
+      document.querySelectorAll('#filter-bar .filter-tab').forEach(function (tab) {
+        tab.addEventListener('click', function () {
+          applyFilter(tab.getAttribute('data-filter'));
+        });
+      });
+
+      var hash = window.location.hash.replace('#', '');
+      var valid = ['insight', 'technical', 'member-essay', 'meeting'];
+      if (valid.indexOf(hash) !== -1) applyFilter(hash);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+    document.addEventListener('astro:after-swap', init);
+  })();
+</script>
+
+<style>
+  .filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.75rem;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .filter-bar::-webkit-scrollbar { display: none; }
+
+  .filter-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    padding: 0.3rem 0.75rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--color-border);
+    background: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s, background 0.15s;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .filter-tab:hover { color: var(--color-accent); border-color: var(--color-accent); }
+  .filter-tab.active { color: var(--color-accent); border-color: var(--color-accent); background: rgba(88,166,255,0.07); }
+  .filter-tab .count {
+    font-size: 0.65rem;
+    background: var(--color-bg-3);
+    border-radius: 10px;
+    padding: 0 0.3rem;
+    color: var(--color-text-muted);
+  }
+  .filter-tab.active .count { background: rgba(88,166,255,0.15); color: var(--color-accent); }
+
+  @media (max-width: 480px) {
+    .filter-bar { gap: 0.3rem; flex-wrap: nowrap; }
+    .filter-tab { font-size: 0.7rem; padding: 0.25rem 0.6rem; }
+  }
+</style>

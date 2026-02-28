@@ -9,7 +9,15 @@ const currentPath = Astro.url.pathname;
     <a href="/" class="nav-brand">
       <span class="tilde">~</span><span class="slash">/</span><span class="name">njueeray</span>
     </a>
-    <ul class="nav-links">
+
+    <!-- Hamburger (mobile only) -->
+    <button class="hamburger" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+
+    <ul class="nav-links" id="nav-links">
       <li><a href="/" class={currentPath === '/' ? 'active' : ''}>home</a></li>
       <li><a href="/#about" class="">about</a></li>
       <li><a href="/#projects" class="">projects</a></li>
@@ -32,6 +40,37 @@ const currentPath = Astro.url.pathname;
   </div>
 </nav>
 
+<script is:inline>
+  (function () {
+    function initNav() {
+      var toggle = document.getElementById('nav-toggle');
+      var links  = document.getElementById('nav-links');
+      if (!toggle || !links) return;
+
+      toggle.addEventListener('click', function () {
+        var open = links.classList.toggle('open');
+        toggle.classList.toggle('open', open);
+        toggle.setAttribute('aria-expanded', String(open));
+      });
+
+      // close on link click (mobile)
+      links.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () {
+          links.classList.remove('open');
+          toggle.classList.remove('open');
+          toggle.setAttribute('aria-expanded', 'false');
+        });
+      });
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initNav);
+    } else {
+      initNav();
+    }
+    document.addEventListener('astro:after-swap', initNav);
+  })();
+</script>
+
 <style>
   .navbar {
     position: fixed;
@@ -39,7 +78,7 @@ const currentPath = Astro.url.pathname;
     left: 0;
     right: 0;
     z-index: 1000;
-    height: 52px;
+    height: var(--nav-h);
     background: rgba(var(--nav-bg-rgb, 13, 17, 23), 0.85);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
@@ -47,10 +86,10 @@ const currentPath = Astro.url.pathname;
   }
 
   .nav-inner {
-    max-width: 900px;
+    max-width: var(--max-w-wide);
     margin: 0 auto;
     height: 100%;
-    padding: 0 1.5rem;
+    padding: 0 var(--space-lg);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -69,6 +108,31 @@ const currentPath = Astro.url.pathname;
   .nav-brand .slash { color: var(--color-text-muted); }
   .nav-brand .name  { color: var(--color-text); }
 
+  /* ── Hamburger ──────────────────────────────── */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.4rem;
+    z-index: 1001;
+  }
+  .hamburger .bar {
+    display: block;
+    width: 20px;
+    height: 2px;
+    background: var(--color-text-muted);
+    border-radius: 2px;
+    transition: transform 0.25s, opacity 0.25s;
+  }
+  .hamburger.open .bar:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+  .hamburger.open .bar:nth-child(2) { opacity: 0; }
+  .hamburger.open .bar:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+  /* ── Nav links ──────────────────────────────── */
   .nav-links {
     list-style: none;
     display: flex;
@@ -113,7 +177,44 @@ const currentPath = Astro.url.pathname;
     padding: 0.3rem 0.5rem !important;
   }
 
-  @media (max-width: 480px) {
-    .nav-links a { padding: 0.3rem 0.4rem; font-size: 0.72rem; }
+  /* ── Responsive: tablet ─────────────────────── */
+  @media (max-width: 768px) {
+    .hamburger { display: flex; }
+
+    .nav-links {
+      position: fixed;
+      top: var(--nav-h);
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      background: rgba(var(--nav-bg-rgb, 13, 17, 23), 0.97);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--color-border);
+      padding: var(--space-sm) var(--space-lg);
+      gap: 0;
+      transform: translateY(-110%);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.25s ease;
+      pointer-events: none;
+    }
+    .nav-links.open {
+      transform: translateY(0);
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .nav-links li { width: 100%; }
+    .nav-links a {
+      display: block;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.85rem;
+    }
+    .nav-icon-btn {
+      padding: 0.6rem 0.75rem;
+      width: 100%;
+      justify-content: flex-start;
+    }
   }
 </style>

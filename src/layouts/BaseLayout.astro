@@ -4,8 +4,8 @@
 import Nav from '@components/Nav.astro';
 import Footer from '@components/Footer.astro';
 import Search from '@components/Search.astro';
-import ThemeToggle from '@components/ThemeToggle.astro';
 import { ViewTransitions } from 'astro:transitions';
+import '../styles/global.css';
 
 export interface Props {
   title: string;
@@ -46,76 +46,6 @@ const ogImageURL = ogImage ? new URL(ogImage, Astro.site).href : undefined;
 
     <title>{title}</title>
     <ViewTransitions />
-    <style>
-      :root {
-        --color-bg:        #0d1117;
-        --color-bg-2:      #161b22;
-        --color-bg-3:      #21262d;
-        --color-accent:    #58a6ff;
-        --color-accent-2:  #388bfd;
-        --color-text:      #e6edf3;
-        --color-text-muted:#8b949e;
-        --color-border:    #30363d;
-        --color-green:     #3fb950;
-        --color-yellow:    #e3b341;
-        --nav-bg-rgb:      13, 17, 23;
-        --font-mono:       'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace;
-        --font-sans:       'Inter', system-ui, -apple-system, sans-serif;
-      }
-
-      :root[data-theme="light"] {
-        --color-bg:        #ffffff;
-        --color-bg-2:      #f6f8fa;
-        --color-bg-3:      #e1e4e8;
-        --color-accent:    #0969da;
-        --color-accent-2:  #0550ae;
-        --color-text:      #1f2328;
-        --color-text-muted:#656d76;
-        --color-border:    #d0d7de;
-        --color-green:     #1a7f37;
-        --color-yellow:    #9a6700;
-        --nav-bg-rgb:      255, 255, 255;
-      }
-
-      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-      html {
-        background-color: var(--color-bg);
-        color: var(--color-text);
-        font-family: var(--font-sans);
-        scroll-behavior: smooth;
-      }
-
-      body {
-        min-height: 100vh;
-        line-height: 1.6;
-        /* Reserve space for fixed navbar */
-        padding-top: 52px;
-      }
-
-      a {
-        color: var(--color-accent);
-        text-decoration: none;
-        transition: color 0.2s;
-      }
-      a:hover { color: #fff; }
-
-      ::selection {
-        background: var(--color-accent);
-        color: var(--color-bg);
-      }
-
-      /* Scrollbar */
-      ::-webkit-scrollbar { width: 8px; }
-      ::-webkit-scrollbar-track { background: var(--color-bg-2); }
-      ::-webkit-scrollbar-thumb { background: var(--color-bg-3); border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: var(--color-accent-2); }
-
-      /* Bilingual content toggle */
-      html:not([data-lang]) .lang-en,
-      html[data-lang="zh"] .lang-en { display: none; }
-      html[data-lang="en"] .lang-zh { display: none; }
-    </style>
   </head>
   <body>
     <Nav />
