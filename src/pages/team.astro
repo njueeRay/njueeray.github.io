@@ -13,13 +13,13 @@ const allPosts = (await getCollection('blog', ({ data }) => !data.draft))
 const latestPost = new Map<string, { title: string; slug: string }>();
 for (const post of allPosts) {
   const aid = post.data.author;
-  if (!latestPost.has(aid)) latestPost.set(aid, { title: post.data.title, slug: post.slug });
+  if (!latestPost.has(aid)) latestPost.set(aid, { title: post.data.title, slug: post.id });
 }
 
 // 团队动态墙 — 最近 12 篇博文 + 作者信息
 const memberMap = new Map(teamMembers.map(m => [m.id, m]));
 const activityFeed = allPosts.slice(0, 12).map(p => ({
-  slug: p.slug,
+  slug: p.id,
   title: p.data.title,
   pubDate: p.data.pubDate,
   author: memberMap.get(p.data.author) ?? null,

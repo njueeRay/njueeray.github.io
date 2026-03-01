@@ -4,18 +4,18 @@ import ReadingProgress from '@components/ReadingProgress.astro';
 import TableOfContents from '@components/TableOfContents.astro';
 import Giscus from '@components/Giscus.astro';
 import LangToggle from '@components/LangToggle.astro';
-import { getCollection, getEntry } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
   return posts.map(post => ({
-    params: { slug: post.slug },
+    params: { slug: post.id },
     props: { post },
   }));
 }
 
 const { post } = Astro.props;
-const { Content } = await post.render();
+const { Content } = await render(post);
 
 let authorData = null;
 try {
@@ -24,7 +24,7 @@ try {
 } catch {}
 
 const siteUrl = 'https://njueeray.github.io';
-const postUrl = `${siteUrl}/blog/${post.slug}`;
+const postUrl = `${siteUrl}/blog/${post.id}`;
 
 // JSON-LD Article schema
 const articleSchema = {

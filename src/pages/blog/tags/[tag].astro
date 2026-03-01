@@ -58,7 +58,7 @@ for (const post of posts) {
       <ul class="posts">
         {posts.map(post => (
           <li class="post-item">
-            <a href={`/blog/${post.slug}`} class="post-title-link">
+            <a href={`/blog/${post.id}`} class="post-title-link">
               <div class="post-meta">
                 <time datetime={post.data.pubDate.toISOString()}>
                   {post.data.pubDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' })}

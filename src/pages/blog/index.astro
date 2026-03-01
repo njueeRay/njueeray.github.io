@@ -47,7 +47,7 @@ for (const p of posts) {
       <ul class="posts" id="posts-list">
         {posts.map(post => (
           <BlogCard
-            slug={post.slug}
+            slug={post.id}
             title={post.data.title}
             description={post.data.description}
             pubDate={post.data.pubDate}
