@@ -8,7 +8,10 @@
     "build": "astro build",
     "postbuild": "pagefind --site dist",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:ci": "playwright test --project=chromium-desktop"
   },
   "dependencies": {
     "@astrojs/mdx": "^4.3.13",
@@ -21,6 +24,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.4",
+    "@playwright/test": "^1.58.2",
     "pagefind": "^1.4.0",
     "typescript": "^5.7.3"
   }
