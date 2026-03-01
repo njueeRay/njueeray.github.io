@@ -3,6 +3,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import ReadingProgress from '@components/ReadingProgress.astro';
 import TableOfContents from '@components/TableOfContents.astro';
 import Giscus from '@components/Giscus.astro';
+import ShareLinks from '@components/ShareLinks.astro';
 import LangToggle from '@components/LangToggle.astro';
 import { getCollection, getEntry, render } from 'astro:content';
 
@@ -76,6 +77,7 @@ const relatedPosts = allPosts
 <BaseLayout
   title={`${post.data.title} · Ray Huang`}
   description={post.data.description}
+  ogImage={`/og/${post.id}.png`}
   jsonLd={articleSchema}
   hreflangLinks={hreflangLinks}
 >
@@ -165,6 +167,7 @@ const relatedPosts = allPosts
         </section>
       )}
 
+      <ShareLinks postUrl={postUrl} title={post.data.title} />
       <Giscus />
     </div>
   </article>
