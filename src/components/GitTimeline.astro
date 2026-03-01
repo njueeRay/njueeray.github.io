@@ -16,7 +16,7 @@ events.forEach(e => {
 <section class="git-timeline" id="timeline">
   <div class="timeline-track">
 
-    {events.map((event, index) => {
+    {events.map((event) => {
       const cfg = typeConfig[event.type];
       const isBranch = !!event.branch;
       // 判断是否是分支组的第一个事件（需要显示 fork 标签）
