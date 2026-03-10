@@ -6,7 +6,20 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [Unreleased] — feature/blog-visual-refresh
+## [Unreleased] — v5.10.0 首页品牌化重设计
+
+### Added
+
+- **H-1** `src/components/Hero.astro` — 双栏叙事重设计：左侧保留 terminal 动效，右侧新增 `narrative-col`（identity-badge / 中文标题"人类判断力 × AI 执行力" / 简介 / 最新博文卡片 / quick-stats）；容器扩展至 1100px，≥720px 启用 58%/1fr CSS Grid。
+- **H-2** `src/components/Projects.astro` — GitHub API 动态数据：TypeScript 接口 + `fetchRepo()` + 实时 stars/forks/activeLabel（Active / `Nd ago`）；新增 `.card-header`（repo-icon + active-badge）、`.card-footer`（tags + repo-stats）布局。
+
+### Changed
+
+- **H-3** `src/components/FeaturedCard.astro` + `Projects.astro` — 视觉语言统一：将 4 处硬编码 `20px`/`4px`/`8px` 半径值替换为设计 token（`var(--radius-pill)` / `var(--radius-sm)` / `var(--radius-md)`）；移除 fallback 用法。
+
+---
+
+## [v5.6.0…v5.9.0 历史区块保留]
 
 ### Added
 
