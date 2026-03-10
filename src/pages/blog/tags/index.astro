@@ -58,8 +58,7 @@ const totalPosts = posts.length;
                   style={`font-size: ${fontSize.toFixed(2)}rem;`}
                   title={`${count} 篇文章`}
                 >
-                  {tag}
-                  <span class="tag-count">{count}</span>
+                  <span class="tag-prefix">$</span>{tag}<span class="tag-count">{count}</span>
                 </a>
               </li>
             );
@@ -127,6 +126,14 @@ const totalPosts = posts.length;
     transform: none;
   }
 
+  .tag-prefix {
+    color: var(--color-green);
+    font-weight: 700;
+    margin-right: 0.05rem;
+    opacity: 0.8;
+  }
+  .tag-item:hover .tag-prefix { opacity: 1; }
+
   .tag-count {
     font-size: 0.68em;
     color: var(--color-text-muted);
@@ -134,6 +141,11 @@ const totalPosts = posts.length;
     border-radius: 3px;
     padding: 0 0.3em;
     line-height: 1.6;
+    transition: color 0.15s, background 0.15s;
+  }
+  .tag-item:hover .tag-count {
+    color: var(--color-accent);
+    background: rgba(88,166,255,0.12);
   }
 
   .back-link {

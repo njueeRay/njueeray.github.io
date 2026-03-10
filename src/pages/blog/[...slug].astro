@@ -6,6 +6,7 @@ import Giscus from '@components/Giscus.astro';
 import ShareLinks from '@components/ShareLinks.astro';
 import LangToggle from '@components/LangToggle.astro';
 import { getCollection, getEntry, render } from 'astro:content';
+import '@styles/prose.css';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog', ({ data }) => !data.draft);
@@ -119,7 +120,7 @@ const relatedPosts = allPosts
         </div>
       </header>
 
-      <div class="post-content">
+      <div class="post-content prose">
         <Content />
       </div>
 

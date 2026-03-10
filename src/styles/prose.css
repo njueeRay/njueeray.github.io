@@ -1,0 +1,275 @@
+/*
+ * prose.css — 文章页专属排版样式
+ * v5.6.0: U-5｜行高 1.8 · 代码块打磨 · 引用块终端风格
+ *
+ * 使用方式：在文章页组件中 import '@styles/prose.css'，
+ * 并将正文容器添加 class="prose"
+ */
+
+/* ─── 正文容器 ────────────────────────────── */
+.prose {
+  line-height: 1.8;
+  font-family: var(--font-sans);
+  font-size: 0.975rem;
+  color: var(--color-text);
+}
+
+/* ─── 标题 ───────────────────────────────── */
+.prose :global(h2) {
+  font-size: 1.22rem;
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 2.25rem 0 0.8rem;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--color-border);
+  line-height: 1.35;
+}
+
+.prose :global(h3) {
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--color-accent);
+  margin: 1.75rem 0 0.55rem;
+  line-height: 1.4;
+}
+
+.prose :global(h4) {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 1.25rem 0 0.45rem;
+  font-family: var(--font-mono);
+  opacity: 0.85;
+}
+
+/* ─── 段落与行内元素 ──────────────────────── */
+.prose :global(p) {
+  color: var(--color-text);
+  margin-bottom: 1.1rem;
+  font-size: 0.975rem;
+  line-height: 1.8;
+}
+
+.prose :global(a) {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  transition: color 0.15s;
+}
+.prose :global(a:hover) { color: #fff; }
+:root[data-theme="light"] .prose :global(a:hover) { color: var(--color-accent-2); }
+
+.prose :global(strong) {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.prose :global(em) { font-style: italic; color: var(--color-text-muted); }
+
+.prose :global(mark) {
+  background: rgba(88, 166, 255, 0.2);
+  color: var(--color-text);
+  border-radius: 2px;
+  padding: 0.05em 0.25em;
+}
+
+/* ─── 行内代码 ───────────────────────────── */
+.prose :global(code) {
+  font-family: var(--font-mono);
+  font-size: 0.84em;
+  background: var(--color-bg-3);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  padding: 0.1em 0.45em;
+  color: var(--color-accent);
+}
+
+/* ─── 代码块 ─────────────────────────────── */
+.prose :global(pre) {
+  position: relative;
+  background: #161b22 !important;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1.4rem 0;
+}
+
+/* 代码块文件名头部（若包含 data-filename 属性） */
+.prose :global(pre[data-filename]::before) {
+  content: attr(data-filename);
+  display: block;
+  padding: 0.45rem 1rem;
+  background: rgba(255,255,255,0.04);
+  border-bottom: 1px solid var(--color-border);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.04em;
+}
+
+.prose :global(pre code) {
+  display: block;
+  padding: 1.2rem 1.25rem;
+  overflow-x: auto;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  tab-size: 2;
+}
+
+/* Shiki / 语法高亮兼容 */
+.prose :global(pre .line) { display: inline-block; width: 100%; }
+
+/* 代码块复制按钮（由 prose-copy-btn.ts 脚本注入） */
+.prose :global(.copy-btn) {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.65rem;
+  padding: 0.2rem 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  background: var(--color-bg-3);
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s, border-color 0.15s;
+  z-index: 2;
+}
+.prose :global(pre:hover .copy-btn) { opacity: 1; }
+.prose :global(.copy-btn:hover) {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.prose :global(.copy-btn.copied) {
+  color: var(--color-green);
+  border-color: var(--color-green);
+  opacity: 1;
+}
+
+/* ─── 引用块（终端风格） ─────────────────── */
+.prose :global(blockquote) {
+  position: relative;
+  margin: 1.5rem 0;
+  padding: 0.75rem 1.1rem 0.75rem 1.2rem;
+  background: #161b22;
+  border-left: 3px solid var(--color-accent);
+  border-radius: 0 6px 6px 0;
+}
+
+/* 终端提示符装饰 */
+.prose :global(blockquote::before) {
+  content: '❯';
+  position: absolute;
+  top: 0.7rem;
+  left: -1.2rem;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--color-accent);
+  opacity: 0.55;
+}
+
+.prose :global(blockquote p) {
+  color: var(--color-text-muted);
+  margin: 0;
+  font-style: italic;
+  line-height: 1.7;
+}
+
+.prose :global(blockquote p + p) { margin-top: 0.5rem; }
+
+/* ─── 列表 ───────────────────────────────── */
+.prose :global(ul),
+.prose :global(ol) {
+  padding-left: 1.6rem;
+  margin: 0.8rem 0 1.1rem;
+}
+
+.prose :global(li) {
+  color: var(--color-text);
+  font-size: 0.975rem;
+  margin-bottom: 0.4rem;
+  line-height: 1.75;
+}
+
+.prose :global(ul li::marker) { color: var(--color-accent); }
+.prose :global(ol li::marker) {
+  color: var(--color-text-muted);
+  font-family: var(--font-mono);
+  font-size: 0.8em;
+}
+
+/* ─── 表格 ───────────────────────────────── */
+.prose :global(table) {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.4rem 0;
+  font-size: 0.88rem;
+  overflow-x: auto;
+  display: block;
+}
+
+.prose :global(thead tr) {
+  background: var(--color-bg-3);
+}
+
+.prose :global(th) {
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--color-border);
+  text-align: left;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.prose :global(td) {
+  padding: 0.55rem 0.9rem;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  vertical-align: top;
+}
+
+.prose :global(tr:nth-child(even) td) {
+  background: rgba(255,255,255,0.015);
+}
+
+/* ─── 分割线 ─────────────────────────────── */
+.prose :global(hr) {
+  border: none;
+  border-top: 1px solid var(--color-border);
+  margin: 2.25rem 0;
+  opacity: 0.6;
+}
+
+/* ─── 图片 ───────────────────────────────── */
+.prose :global(img) {
+  max-width: 100%;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  margin: 1.25rem 0;
+}
+
+/* ─── 键盘标记 ───────────────────────────── */
+.prose :global(kbd) {
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  padding: 0.1em 0.45em;
+  background: var(--color-bg-3);
+  border: 1px solid var(--color-border);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  color: var(--color-text);
+}
+
+/* ─── Light theme overrides ──────────────── */
+:root[data-theme="light"] .prose :global(pre) {
+  background: #f6f8fa !important;
+}
+:root[data-theme="light"] .prose :global(blockquote) {
+  background: #f6f8fa;
+}

@@ -1,0 +1,246 @@
+---
+/**
+ * FeaturedCard.astro — 博客列表首条宽卡（U-7）
+ * 用于 featured: true 的博文，在博客列表页顶部以大卡片形式展示。
+ * v5.6.0
+ */
+import type { ContentType } from '@data/content-types';
+import { typeConfig } from '@data/content-types';
+
+export interface Props {
+  slug: string;
+  title: string;
+  description: string;
+  pubDate: Date;
+  contentType: ContentType;
+  tags: string[];
+  authorId: string;
+  authorData?: {
+    displayName: string;
+    avatar?: string;
+    isAgent: boolean;
+    role?: string;
+  } | null;
+}
+
+const { slug, title, description, pubDate, contentType, tags, authorId, authorData } = Astro.props;
+const typeMeta = typeConfig[contentType];
+---
+
+<li class="featured-card" data-type={contentType}>
+  <a href={`/blog/${slug}`} class="featured-link">
+    <div class="featured-eyebrow">
+      <span class="featured-label">
+        <span class="star">★</span> Featured
+      </span>
+      <span class={`type-badge ${typeMeta.color}`}>
+        <span class="type-icon">{typeMeta.icon}</span> {typeMeta.label}
+      </span>
+    </div>
+
+    <h2 class="featured-title">{title}</h2>
+    <p class="featured-desc">{description}</p>
+
+    <div class="featured-footer">
+      <div class="featured-meta">
+        <time datetime={pubDate.toISOString()}>
+          {pubDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' })}
+        </time>
+        {authorData && (
+          <a href={`/blog/authors/${authorId}`} class="author-chip">
+            {authorData.avatar && <span class="author-emoji">{authorData.avatar}</span>}
+            <span class="author-name">{authorData.displayName}</span>
+            {authorData.role && <span class="author-role">{authorData.role}</span>}
+            {authorData.isAgent && <span class="agent-dot" title="AI Agent">●</span>}
+          </a>
+        )}
+      </div>
+      <div class="featured-tags">
+        {tags.slice(0, 4).map(tag => (
+          <span class="tag">{tag}</span>
+        ))}
+      </div>
+    </div>
+  </a>
+</li>
+
+<style>
+  .featured-card {
+    position: relative;
+    background: var(--color-bg-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: border-color 0.2s, box-shadow 0.25s, transform 0.15s ease;
+    will-change: transform;
+    list-style: none;
+  }
+
+  /* 彩色顶边 */
+  .featured-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--color-accent) 0%, var(--color-purple) 60%, var(--color-green) 100%);
+  }
+
+  .featured-card:hover {
+    border-color: var(--color-accent);
+    box-shadow: 0 12px 40px rgba(88,166,255,0.14);
+    transform: translateY(-2px);
+  }
+
+  /* ── Content-type left accent (subtle, 2px since top bar is prominent) ── */
+  .featured-card[data-type="insight"]      { border-left: 2px solid var(--color-accent); }
+  .featured-card[data-type="technical"]    { border-left: 2px solid var(--color-green); }
+  .featured-card[data-type="member-essay"] { border-left: 2px solid var(--color-purple); }
+  .featured-card[data-type="meeting"]      { border-left: 2px solid var(--color-orange); }
+
+  .featured-link {
+    display: block;
+    padding: 1.6rem 1.75rem 1.4rem;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* ── Eyebrow ── */
+  .featured-eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.9rem;
+    flex-wrap: wrap;
+  }
+
+  .featured-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--color-yellow);
+    border: 1px solid rgba(227,179,65,0.3);
+    background: rgba(227,179,65,0.08);
+    border-radius: 20px;
+    padding: 0.1rem 0.55rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .star { margin-right: 0.2rem; }
+
+  /* Type badge */
+  .type-badge {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 0.08rem 0.5rem;
+    border-radius: 20px;
+    border: 1px solid;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .type-insight  { color: var(--color-accent);  border-color: rgba(88,166,255,0.3);  background: rgba(88,166,255,0.07);  }
+  .type-technical{ color: var(--color-green);   border-color: rgba(63,185,80,0.3);   background: rgba(63,185,80,0.07);   }
+  .type-member   { color: var(--color-purple);  border-color: rgba(188,140,255,0.3); background: rgba(188,140,255,0.07); }
+  .type-meeting  { color: var(--color-orange);  border-color: rgba(210,153,34,0.3);  background: rgba(210,153,34,0.07);  }
+
+  /* ── Title & desc ── */
+  .featured-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--color-text);
+    margin: 0 0 0.65rem;
+    line-height: 1.35;
+    transition: color 0.2s;
+  }
+  .featured-link:hover .featured-title { color: var(--color-accent); }
+
+  .featured-desc {
+    font-size: 0.92rem;
+    color: var(--color-text-muted);
+    line-height: 1.7;
+    margin: 0 0 1.25rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ── Footer ── */
+  .featured-footer {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--color-border);
+  }
+
+  .featured-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  time {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  /* Author chip */
+  .author-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.72rem;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: 0.08rem 0.55rem;
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
+    position: relative;
+    z-index: 1;
+  }
+  .author-chip:hover { color: var(--color-accent); border-color: var(--color-accent); }
+  .author-emoji { font-size: 0.9em; }
+  .author-name  { font-family: var(--font-mono); }
+  .author-role  {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--color-accent);
+    opacity: 0.7;
+    border-left: 1px solid var(--color-border);
+    padding-left: 0.3rem;
+    margin-left: 0.05rem;
+  }
+  .agent-dot { color: var(--color-accent); font-size: 0.5rem; }
+
+  /* Tags */
+  .featured-tags {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+  }
+
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 0.67rem;
+    background: var(--color-bg-3);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.1rem 0.45rem;
+    color: var(--color-text-muted);
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .featured-link:hover .tag {
+    border-color: rgba(88,166,255,0.25);
+  }
+
+  @media (max-width: 540px) {
+    .featured-link { padding: 1.25rem 1.1rem; }
+    .featured-title { font-size: 1.1rem; }
+    .featured-footer { flex-direction: column; align-items: flex-start; }
+  }
+</style>

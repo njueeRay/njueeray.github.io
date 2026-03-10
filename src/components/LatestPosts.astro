@@ -1,0 +1,251 @@
+---
+/**
+ * LatestPosts.astro — 首页最新博文预览（U-6）
+ * 展示最新 3 篇非草稿博文，放置在 Contact 区块之前。
+ * v5.6.0
+ */
+import { getCollection, getEntry } from 'astro:content';
+import { typeConfig } from '@data/content-types';
+import type { ContentType } from '@data/content-types';
+
+const posts = (await getCollection('blog', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+  .slice(0, 3);
+
+// 预加载作者数据
+const authorCache = new Map<string, { displayName: string; avatar?: string; isAgent: boolean }>();
+for (const post of posts) {
+  const id = post.data.author;
+  if (!authorCache.has(id)) {
+    try {
+      const entry = await getEntry('authors', id);
+      if (entry) authorCache.set(id, entry.data);
+    } catch {}
+  }
+}
+---
+
+{posts.length > 0 && (
+  <section class="latest-posts" aria-labelledby="latest-posts-heading">
+    <div class="container">
+      <div class="section-header">
+        <h2 class="section-title" id="latest-posts-heading">
+          <span class="prompt">❯</span>
+          <span class="cmd"> cat blog/ --latest=3</span>
+        </h2>
+        <a href="/blog" class="see-all">全部文章 →</a>
+      </div>
+
+      <ul class="post-list">
+        {posts.map(post => {
+          const typeMeta = typeConfig[post.data.contentType as ContentType];
+          const author = authorCache.get(post.data.author);
+          return (
+            <li class="post-item" data-type={post.data.contentType}>
+              <a href={`/blog/${post.id}`} class="post-link">
+                <div class="post-meta">
+                  <span class={`type-badge ${typeMeta.color}`}>
+                    <span class="type-icon">{typeMeta.icon}</span>
+                    {typeMeta.label}
+                  </span>
+                  <time datetime={post.data.pubDate.toISOString()}>
+                    {post.data.pubDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </time>
+                  {author && (
+                    <span class="author-chip">
+                      {author.avatar && <span class="author-emoji">{author.avatar}</span>}
+                      <span class="author-name">{author.displayName}</span>
+                      {author.isAgent && <span class="agent-dot" title="AI Agent">●</span>}
+                    </span>
+                  )}
+                </div>
+                <h3 class="post-title">{post.data.title}</h3>
+                <p class="post-desc">{post.data.description}</p>
+              </a>
+              <div class="post-footer">
+                {post.data.tags.slice(0, 3).map(tag => (
+                <a href={`/blog/tags/${encodeURIComponent(tag)}`} class="tag">
+                    {tag}
+                  </a>
+                ))}
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </section>
+)}
+
+<style>
+  .latest-posts {
+    padding: var(--space-2xl) var(--space-lg);
+    border-top: 1px solid var(--color-border);
+  }
+
+  .container { max-width: var(--max-w); margin: 0 auto; }
+
+  /* ── Header ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .section-title {
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    font-weight: 400;
+    color: var(--color-text-muted);
+  }
+  .section-title .prompt { color: var(--color-green); margin-right: 0.3rem; }
+  .section-title .cmd { color: var(--color-text); }
+
+  .see-all {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--color-accent);
+    text-decoration: none;
+    opacity: 0.75;
+    transition: opacity 0.15s;
+  }
+  .see-all:hover { opacity: 1; color: var(--color-accent); }
+
+  /* ── List ── */
+  .post-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+  }
+
+  /* ── Card ── */
+  .post-item {
+    background: var(--color-bg-2);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: border-color 0.2s, transform 0.15s ease, box-shadow 0.2s;
+    will-change: transform;
+  }
+  .post-item:hover {
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(88,166,255,0.08);
+  }
+
+  /* content-type left accent */
+  .post-item[data-type="insight"]      { border-left: 3px solid var(--color-accent); }
+  .post-item[data-type="technical"]    { border-left: 3px solid var(--color-green); }
+  .post-item[data-type="member-essay"] { border-left: 3px solid var(--color-purple); }
+  .post-item[data-type="meeting"]      { border-left: 3px solid var(--color-orange); }
+
+  .post-link {
+    display: block;
+    padding: 1.1rem 1.4rem 0.7rem;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  /* ── Meta row ── */
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+  }
+
+  time {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+  }
+
+  /* Type badge (matches BlogCard) */
+  .type-badge {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    padding: 0.08rem 0.5rem;
+    border-radius: 20px;
+    border: 1px solid;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .type-insight  { color: var(--color-accent);  border-color: rgba(88,166,255,0.3);  background: rgba(88,166,255,0.07);  }
+  .type-technical{ color: var(--color-green);   border-color: rgba(63,185,80,0.3);   background: rgba(63,185,80,0.07);   }
+  .type-member   { color: var(--color-purple);  border-color: rgba(188,140,255,0.3); background: rgba(188,140,255,0.07); }
+  .type-meeting  { color: var(--color-orange);  border-color: rgba(210,153,34,0.3);  background: rgba(210,153,34,0.07);  }
+
+  /* Author chip */
+  .author-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    border: 1px solid var(--color-border);
+    border-radius: 20px;
+    padding: 0.05rem 0.45rem;
+  }
+  .author-emoji { font-size: 0.85em; }
+  .author-name  { font-family: var(--font-mono); }
+  .agent-dot    { color: var(--color-accent); font-size: 0.5rem; }
+
+  /* ── Post title & desc ── */
+  .post-title {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin: 0 0 0.35rem;
+    line-height: 1.45;
+    transition: color 0.15s;
+  }
+  .post-link:hover .post-title { color: var(--color-accent); }
+
+  .post-desc {
+    font-size: 0.855rem;
+    color: var(--color-text-muted);
+    line-height: 1.6;
+    margin: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* ── Footer tags ── */
+  .post-footer {
+    display: flex;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    padding: 0.55rem 1.4rem;
+    border-top: 1px solid var(--color-border);
+    background: rgba(255,255,255,0.015);
+  }
+
+  .tag {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    background: var(--color-bg-3);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    padding: 0.08rem 0.4rem;
+    color: var(--color-text-muted);
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
+    position: relative;
+    z-index: 1;
+  }
+  .tag:hover { color: var(--color-accent); border-color: var(--color-accent); }
+
+  @media (max-width: 500px) {
+    .section-header { flex-direction: column; align-items: flex-start; }
+    .post-link { padding: 0.9rem 1rem 0.55rem; }
+    .post-footer { padding: 0.45rem 1rem; }
+  }
+</style>

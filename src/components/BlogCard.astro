@@ -18,6 +18,7 @@ export interface Props {
     displayName: string;
     avatar?: string;
     isAgent: boolean;
+    role?: string;
   } | null;
 }
 
@@ -41,6 +42,7 @@ const typeMeta = typeConfig[contentType];
         >
           {authorData.avatar && <span class="author-emoji">{authorData.avatar}</span>}
           <span>{authorData.displayName}</span>
+          {authorData.role && <span class="author-role">{authorData.role}</span>}
           {authorData.isAgent && <span class="agent-dot" title="AI Agent">●</span>}
         </a>
       )}
@@ -149,6 +151,15 @@ const typeMeta = typeConfig[contentType];
   .author-chip:hover { color: var(--color-accent); border-color: var(--color-accent); }
   .author-emoji { font-style: normal; line-height: 1; }
   .agent-dot { color: var(--color-accent); font-size: 0.55rem; }
+  .author-role {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    color: var(--color-accent);
+    opacity: 0.65;
+    border-left: 1px solid var(--color-border);
+    padding-left: 0.3rem;
+    margin-left: 0.05rem;
+  }
 
   .post-tags {
     display: flex;
