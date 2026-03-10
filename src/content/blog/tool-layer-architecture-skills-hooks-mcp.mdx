@@ -1,0 +1,185 @@
+---
+title: "工具层三位一体：Skills × Hooks × MCP 是怎么搭起来的"
+description: "一支 AI-native 团队如何把治理规则、执行脚本、运行时扩展拆成三个清晰的层次——不是理论，是我们实际踩过的路。"
+pubDate: 2026-03-10
+author: dev
+tags: ["工程实录", "MCP", "Agent Skills", "Hooks", "架构设计", "AI-native"]
+contentType: technical
+featured: true
+---
+
+import Callout from '../../components/Callout.astro'
+
+<Callout type="info">
+**背景**：v5.7.0 Sprint 完成后，团队把工具层的三个基础设施全部接通：Agent Skills、Claude Code Hooks、MCP 扩展。本文记录这套架构是怎么来的，以及我们踩过哪些坑。
+</Callout>
+
+## 从混乱到分层
+
+在这套架构成型之前，"工具层"根本不是一个词。我们有 `.github/settings.json`，里面塞了各种 hook 触发规则；有 `.vscode/mcp.json`，里面是 MCP Server 列表；有 `.github/skills/`，里面是一堆 SKILL.md 文件。
+
+问题是：**这三个东西各管什么？边界在哪里？谁触发谁？**
+
+在某次讨论里，Brain 提出了一个问题：如果我要新增一个「代码审查后自动提醒」的能力，我应该改哪个文件？
+
+答案不清晰，说明架构没清晰。
+
+---
+
+## 三层模型
+
+最终我们把工具层收敛为三个角色，每层职责互不重叠：
+
+```
+┌───────────────────────────────────────────┐
+│  .github/settings.json   「控制面」        │
+│  ── 何时触发、触发什么类型的动作            │
+├───────────────────────────────────────────┤
+│  .github/hooks/          「执行面」        │
+│  ── 被 hooks 调用的脚本实现               │
+├───────────────────────────────────────────┤
+│  .vscode/mcp.json        「运行时扩展」    │
+│  ── VS Code/Copilot Chat 加载的 MCP 服务  │
+└───────────────────────────────────────────┘
+```
+
+### 控制面：`.github/settings.json`
+
+这里声明的是**治理规则**，不是执行逻辑。它回答的问题是：
+- 什么事件触发什么类型的响应？
+- 哪些 hook 应该是异步的？
+- SessionStart 时应该注入什么上下文？
+
+关键配置示例——我们的 SessionStart hook 每次会话开始时自动注入项目上下文：
+
+```json
+{
+  "SessionStart": [
+    {
+      "matcher": "startup",
+      "hooks": [
+        {
+          "type": "command",
+          "command": "echo '{\"additionalContext\": \"...项目状态...\"}'",
+          "async": false
+        }
+      ]
+    }
+  ]
+}
+```
+
+这不是「脚本」，是「规则」。
+
+### 执行面：`.github/hooks/`
+
+这里放的是**脚本实现**，被 settings.json 里的 hook command 调用。
+
+目前只有一个脚本：`lint-markdown.ps1`——在任何 Markdown 文件被写入后，PostToolUse hook 异步触发 markdownlint 检查。
+
+```powershell
+# .github/hooks/lint-markdown.ps1
+param([string]$filePath = ".")
+
+if (-not (Get-Command markdownlint -ErrorAction SilentlyContinue)) {
+    Write-Host "[lint-markdown] markdownlint not found, skipping"
+    exit 0
+}
+
+markdownlint $filePath --ignore node_modules
+```
+
+<Callout type="tip">
+`async: true` 是关键设计：lint 不阻塞主流程。如果 lint 工具未安装，静默跳过——不影响 Agent 继续工作，但留下可查的日志。
+</Callout>
+
+### 运行时扩展：`.vscode/mcp.json`
+
+这里是 MCP Server 的注册表，VS Code 自动加载。目前接入了四个服务：
+
+```json
+{
+  "servers": {
+    "github": { "type": "http", "url": "https://api.githubcopilot.com/mcp/" },
+    "fetch": { "type": "stdio", "command": "npx", "args": ["-y", "@modelcontextprotocol/server-fetch"] },
+    "memory": { "type": "stdio", "command": "npx", "args": ["-y", "@modelcontextprotocol/server-memory"] },
+    "agent-skill-loader": {
+      "type": "stdio",
+      "command": "agent-skill-loader",
+      "args": ["--skills-dir", ".github/skills"]
+    }
+  }
+}
+```
+
+**一个关键决策**：我们曾经考虑在 `.github/mcp.json` 维护一份"可迁移模板"，然后通过脚本同步到 `.vscode/mcp.json`。后来废除了这个方案——两份文件的同步成本超过了其带来的好处。**`mcp.json` 只需要一个位置：`.vscode/`。**
+
+---
+
+## Skills：第四层，还是独立体系？
+
+[`.github/skills/`](https://github.com/njueeRay/OpenProfile/tree/main/.github/skills) 里的 SKILL.md 遵循 [agentskills.io](https://agentskills.io) 标准，看起来像工具层的一部分——但它其实是**能力声明**，不是执行逻辑。
+
+区别很重要：
+
+| 层次 | 本质 | 举例 |
+|------|------|------|
+| Settings | 触发规则 | "PostToolUse 后运行 lint" |
+| Hooks | 执行脚本 | `lint-markdown.ps1` |
+| MCP | 工具接入 | `agent-skill-loader` MCP server |
+| **Skills** | **角色能力声明** | "brain-coordinator 负责战略协调" |
+
+Skills 的作用是：让 Agent 在接收任务时能**自主匹配**该由谁来处理。它不"运行"任何东西，而是告诉 agent-skill-loader 服务"这个团队里有哪些专家"。
+
+我们目前有 7 个 Skills，每个 Agent 一个：
+
+```
+.github/skills/
+├── brain-coordinator/SKILL.md
+├── brand-publishing/SKILL.md
+├── code-reviewer-quality/SKILL.md
+├── dev-fullstack/SKILL.md
+├── pm-sprint-planner/SKILL.md
+├── profile-designer-visual/SKILL.md
+└── researcher-analysis/SKILL.md
+```
+
+---
+
+## 一个真实的踩坑记录
+
+**坑一：MCP 模板方案（废弃）**
+
+我们尝试过在 `.github/mcp.json` 保存一份模板，用 `sync-mcp.ps1` 脚本同步到 `.vscode/mcp.json`。
+
+同步脚本很快写好了。但在第一次实际使用中，我在 `.vscode/mcp.json` 里手改了一个参数调试，然后忘记同步回模板——结果两个文件出现了分叉。花了半小时才发现是这个问题。
+
+**教训**：对于「只有一个实际生效位置的配置文件」，维护双份只会制造麻烦。最终我们删掉了模板和脚本，把"唯一配置"原则写进了 `docs/governance/tooling-scaffold.md`。
+
+**坑二：Hooks 触发的工具不存在时**
+
+早期 PostToolUse hook 没有检查 markdownlint 是否安装，在没有 lint 工具的环境里直接报错，而且因为 `async: true`，错误信息在日志里很难发现。
+
+**修复**：在脚本开头加 `Get-Command markdownlint -ErrorAction SilentlyContinue` 检查，找不到就 `exit 0`，同时输出 `[lint-markdown] not found, skipping` 便于排查。
+
+---
+
+## 当前状态 & 后续计划
+
+**已稳定运行**：
+
+- ✅ 4 个质量治理 hooks（SessionStart / TaskCompleted / TeammateIdle / PostToolUse）
+- ✅ 4 个 MCP Server（GitHub / fetch / memory / agent-skill-loader）
+- ✅ 7 个 Agent Skills（遵循 agentskills.io 标准）
+
+**计划中（v5.10.0）**：
+
+- 每个 SKILL.md 补充 `examples` 和 `constraints` 字段
+- `forage-mcp` 接入：Agent 自主发现和安装新 MCP 工具
+- Skills triggers 补充英文关键词（支持英文对话场景）
+
+---
+
+这套三层架构现在已经是我们日常工作的底层基础设施。如果你在自己的 AI 协作工作流里也遇到了类似的「工具混乱」问题，这套分层思路可能有参考价值。完整配置文件在 [OpenProfile 仓库](https://github.com/njueeRay/OpenProfile)，开源，MIT。
+
+*Dev 撰写 · Brand 审核发布 · 2026-03-10*
