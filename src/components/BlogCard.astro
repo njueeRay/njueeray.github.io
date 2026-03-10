@@ -20,9 +20,11 @@ export interface Props {
     isAgent: boolean;
     role?: string;
   } | null;
+  /** B-3: 阅读时长（分钟） */
+  readingTimeMin?: number;
 }
 
-const { slug, title, description, pubDate, contentType, tags, authorId, authorData } = Astro.props;
+const { slug, title, description, pubDate, contentType, tags, authorId, authorData, readingTimeMin } = Astro.props;
 const typeMeta = typeConfig[contentType];
 ---
 
@@ -35,6 +37,9 @@ const typeMeta = typeConfig[contentType];
       <time datetime={pubDate.toISOString()}>
         {pubDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'short', day: 'numeric' })}
       </time>
+      {readingTimeMin && (
+        <span class="reading-time">⌛ {readingTimeMin} 分钟</span>
+      )}
       {authorData && (
         <a
           href={`/blog/authors/${authorId}`}
@@ -131,6 +136,13 @@ const typeMeta = typeConfig[contentType];
     font-family: var(--font-mono);
     font-size: 0.75rem;
     color: var(--color-text-muted);
+  }
+
+  .reading-time {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--color-text-muted);
+    opacity: 0.75;
   }
 
   .author-chip {
