@@ -16,6 +16,9 @@ const blog = defineCollection({
     // insight: 思想笔记 | technical: 技术实录 | member-essay: 成员随笔 | meeting: 会议纪实
     contentType: z.enum(['insight', 'technical', 'member-essay', 'meeting']).default('insight'),
     featured: z.boolean().default(false),
+    // B-4: 文章系列标记
+    series: z.string().optional(),
+    seriesOrder: z.number().optional(),
   }),
 });
 

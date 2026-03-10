@@ -1,0 +1,188 @@
+---
+/**
+ * SeriesNav — 文章系列导航（上/下篇 + 系列进度） (v5.8.0, B-4)
+ *
+ * 用法（[...slug].astro 中）：
+ *   <SeriesNav
+ *     series={post.data.series}
+ *     currentOrder={post.data.seriesOrder}
+ *     seriesPosts={seriesPostsSorted}
+ *   />
+ */
+
+export interface SeriesPost {
+  id: string;
+  title: string;
+  order: number;
+}
+
+export interface Props {
+  /** 系列名称 */
+  series: string;
+  /** 当前文章在系列中的序号（1-based） */
+  currentOrder: number;
+  /** 系列中所有文章（已按 seriesOrder 排序） */
+  seriesPosts: SeriesPost[];
+}
+
+const { series, currentOrder, seriesPosts } = Astro.props;
+
+const total = seriesPosts.length;
+const currentIdx = seriesPosts.findIndex(p => p.order === currentOrder);
+const prev = currentIdx > 0 ? seriesPosts[currentIdx - 1] : null;
+const next = currentIdx < total - 1 ? seriesPosts[currentIdx + 1] : null;
+---
+
+<nav class="series-nav" aria-label={`系列导航：${series}`}>
+  <div class="series-header">
+    <span class="series-prompt">❯</span>
+    <span class="series-label">系列：</span>
+    <span class="series-name">{series}</span>
+    <span class="series-progress">{currentOrder} / {total}</span>
+  </div>
+
+  <div class="series-progress-bar" role="progressbar" aria-valuenow={currentOrder} aria-valuemin={1} aria-valuemax={total}>
+    <div class="series-progress-fill" style={`width: ${(currentOrder / total) * 100}%`}></div>
+  </div>
+
+  <div class="series-links">
+    {prev ? (
+      <a href={`/blog/${prev.id}`} class="series-link series-link-prev">
+        <span class="link-arrow">←</span>
+        <span class="link-dir">上一篇</span>
+        <span class="link-title">{prev.title}</span>
+      </a>
+    ) : (
+      <span class="series-link series-link-prev series-link-disabled">
+        <span class="link-arrow">←</span>
+        <span class="link-dir">系列起点</span>
+      </span>
+    )}
+
+    {next ? (
+      <a href={`/blog/${next.id}`} class="series-link series-link-next">
+        <span class="link-title">{next.title}</span>
+        <span class="link-dir">下一篇</span>
+        <span class="link-arrow">→</span>
+      </a>
+    ) : (
+      <span class="series-link series-link-next series-link-disabled">
+        <span class="link-dir">系列终点</span>
+        <span class="link-arrow">→</span>
+      </span>
+    )}
+  </div>
+</nav>
+
+<style>
+  .series-nav {
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin: 2rem 0;
+    background: var(--color-bg-2);
+  }
+
+  .series-header {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .series-prompt {
+    color: var(--color-accent);
+    font-size: 0.7rem;
+  }
+
+  .series-label {
+    color: var(--color-text-muted);
+  }
+
+  .series-name {
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .series-progress {
+    margin-left: auto;
+    color: var(--color-text-muted);
+    font-size: 0.7rem;
+  }
+
+  /* Progress bar */
+  .series-progress-bar {
+    height: 2px;
+    background: var(--color-border);
+    border-radius: 1px;
+    margin-bottom: 0.9rem;
+    overflow: hidden;
+  }
+
+  .series-progress-fill {
+    height: 100%;
+    background: var(--color-accent);
+    border-radius: 1px;
+    transition: width 0.4s ease;
+  }
+
+  /* Links */
+  .series-links {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.75rem;
+  }
+
+  .series-link {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    text-decoration: none;
+    color: var(--color-text-muted);
+    transition: color 0.15s;
+    max-width: 45%;
+  }
+
+  a.series-link:hover {
+    color: var(--color-accent);
+  }
+
+  .series-link-disabled {
+    opacity: 0.4;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .link-arrow {
+    color: var(--color-accent);
+    flex-shrink: 0;
+  }
+
+  .link-dir {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+  }
+
+  .link-title {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--color-text);
+  }
+
+  a.series-link:hover .link-title {
+    color: var(--color-accent);
+  }
+
+  .series-link-next {
+    margin-left: auto;
+    text-align: right;
+  }
+</style>

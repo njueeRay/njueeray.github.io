@@ -1,0 +1,114 @@
+---
+/**
+ * Callout — 终端风格提示框 (v5.8.0, B-2)
+ *
+ * 用法（MDX 中）：
+ *   import Callout from '@components/Callout.astro';
+ *   <Callout type="tip">内容</Callout>
+ *   <Callout type="warning" title="注意事项">内容</Callout>
+ */
+
+export interface Props {
+  /** tip | warning | info | note */
+  type?: 'tip' | 'warning' | 'info' | 'note';
+  /** 可选自定义标题，不传则用默认标签 */
+  title?: string;
+}
+
+const { type = 'info', title } = Astro.props;
+
+const config = {
+  tip:     { icon: '❯', label: 'TIP',     cssClass: 'callout-tip' },
+  warning: { icon: '⚠', label: 'WARNING', cssClass: 'callout-warning' },
+  info:    { icon: 'ℹ', label: 'INFO',    cssClass: 'callout-info' },
+  note:    { icon: '✎', label: 'NOTE',    cssClass: 'callout-note' },
+} as const;
+
+const meta = config[type];
+---
+
+<div class={`callout ${meta.cssClass}`} role="note" aria-label={title ?? meta.label}>
+  <div class="callout-header">
+    <span class="callout-icon" aria-hidden="true">{meta.icon}</span>
+    <span class="callout-label">{title ?? meta.label}</span>
+  </div>
+  <div class="callout-body">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .callout {
+    border-left: 3px solid;
+    border-radius: 0 6px 6px 0;
+    background: var(--color-bg-2);
+    padding: 0.85rem 1.1rem;
+    margin: 1.5rem 0;
+    font-family: var(--font-sans);
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .callout-header {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+
+  .callout-icon {
+    font-style: normal;
+    line-height: 1;
+  }
+
+  .callout-body :global(p) {
+    margin: 0;
+    color: var(--color-text-muted);
+  }
+  .callout-body :global(p + p) { margin-top: 0.5rem; }
+  .callout-body :global(code) {
+    font-size: 0.82em;
+    background: var(--color-bg-3);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    padding: 0.1em 0.35em;
+  }
+
+  /* ── Variants ──────────────────────────────── */
+  .callout-tip {
+    border-color: var(--color-green, #3fb950);
+    background: rgba(63, 185, 80, 0.05);
+  }
+  .callout-tip .callout-header {
+    color: var(--color-green, #3fb950);
+  }
+
+  .callout-warning {
+    border-color: var(--color-orange, #d29922);
+    background: rgba(210, 153, 34, 0.06);
+  }
+  .callout-warning .callout-header {
+    color: var(--color-orange, #d29922);
+  }
+
+  .callout-info {
+    border-color: var(--color-accent, #58a6ff);
+    background: rgba(88, 166, 255, 0.05);
+  }
+  .callout-info .callout-header {
+    color: var(--color-accent, #58a6ff);
+  }
+
+  .callout-note {
+    border-color: var(--color-purple, #bc8cff);
+    background: rgba(188, 140, 255, 0.05);
+  }
+  .callout-note .callout-header {
+    color: var(--color-purple, #bc8cff);
+  }
+</style>

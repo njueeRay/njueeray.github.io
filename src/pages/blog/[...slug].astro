@@ -5,7 +5,9 @@ import TableOfContents from '@components/TableOfContents.astro';
 import Giscus from '@components/Giscus.astro';
 import ShareLinks from '@components/ShareLinks.astro';
 import LangToggle from '@components/LangToggle.astro';
+import SeriesNav from '@components/SeriesNav.astro';
 import { getCollection, getEntry, render } from 'astro:content';
+import { calcReadingTime } from '@lib/readingTime';
 import '@styles/prose.css';
 
 export async function getStaticPaths() {
@@ -73,6 +75,21 @@ const relatedPosts = allPosts
   .sort((a, b) => b.score - a.score || b.post.data.pubDate.valueOf() - a.post.data.pubDate.valueOf())
   .slice(0, 3)
   .map(({ post: p }) => p);
+
+// B-3: 阅读时长
+const rawFiles = import.meta.glob<string>('../../content/blog/**/*.{md,mdx}', { eager: true, as: 'raw' });
+const rawKey = Object.keys(rawFiles).find(k => k.endsWith(`/${post.id}`));
+const readingTimeMin = rawKey ? calcReadingTime(rawFiles[rawKey]!).minutes : undefined;
+
+// B-4: 系列导航
+type SeriesPostItem = { id: string; title: string; order: number };
+let seriesPosts: SeriesPostItem[] = [];
+if (post.data.series) {
+  seriesPosts = allPosts
+    .filter(p => p.data.series === post.data.series && typeof p.data.seriesOrder === 'number')
+    .sort((a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0))
+    .map(p => ({ id: p.id, title: p.data.title, order: p.data.seriesOrder! }));
+}
 ---
 
 <BaseLayout
@@ -96,6 +113,9 @@ const relatedPosts = allPosts
           <time datetime={post.data.pubDate.toISOString()}>
             {post.data.pubDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           </time>
+          {readingTimeMin && (
+            <span class="reading-time">⌛ {readingTimeMin} min read</span>
+          )}
           {post.data.updatedDate && (
             <span class="updated">
               (updated {post.data.updatedDate.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })})
@@ -139,6 +159,15 @@ const relatedPosts = allPosts
             <blockquote class="author-card-philosophy">"​{authorData.philosophy}"</blockquote>
           </div>
         </aside>
+      )}
+
+      {/* B-4: 系列导航 */}
+      {post.data.series && post.data.seriesOrder && seriesPosts.length > 1 && (
+        <SeriesNav
+          series={post.data.series}
+          currentOrder={post.data.seriesOrder}
+          seriesPosts={seriesPosts}
+        />
       )}
 
       {relatedPosts.length > 0 && (
@@ -203,6 +232,13 @@ const relatedPosts = allPosts
     flex-wrap: wrap;
   }
   .updated { font-style: italic; }
+
+  .reading-time {
+    font-family: var(--font-mono);
+    font-size: 0.73rem;
+    color: var(--color-text-muted);
+    opacity: 0.8;
+  }
 
   .author-inline {
     display: inline-flex;
