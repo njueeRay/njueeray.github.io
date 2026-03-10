@@ -1,0 +1,245 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+const allPosts = await getCollection('blog');
+
+// Build series map: series name → posts[]
+const seriesMap = new Map<string, typeof allPosts>();
+for (const post of allPosts) {
+  const s = post.data.series;
+  if (!s) continue;
+  if (!seriesMap.has(s)) seriesMap.set(s, []);
+  seriesMap.get(s)!.push(post);
+}
+
+// Sort posts within each series by seriesOrder
+for (const [, posts] of seriesMap) {
+  posts.sort((a, b) => (a.data.seriesOrder ?? 99) - (b.data.seriesOrder ?? 99));
+}
+
+// Convert to sorted array of [name, posts]
+const series = [...seriesMap.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+---
+
+<BaseLayout
+  title="文章系列 — njueeray"
+  description="按主题组织的系列文章，适合深度阅读。"
+>
+  <main id="main-content" class="series-index">
+    <header class="series-header">
+      <p class="series-breadcrumb">
+        <a href="/blog">博客</a> <span class="sep">›</span> 系列
+      </p>
+      <h1 class="series-title">
+        <span class="prompt">$</span> ls ./series
+      </h1>
+      <p class="series-desc">按主题归类的系列文章，逐篇深入一个领域。</p>
+    </header>
+
+    {series.length === 0 ? (
+      <p class="empty-state">暂无系列文章。</p>
+    ) : (
+      <ul class="series-list">
+        {series.map(([name, posts]) => {
+          const latest = posts.reduce((a, b) =>
+            a.data.pubDate > b.data.pubDate ? a : b
+          );
+          return (
+            <li class="series-card">
+              <a href={`/blog/series/${encodeURIComponent(name)}`} class="series-card-link">
+                <div class="series-card-header">
+                  <span class="series-icon">▶</span>
+                  <span class="series-name">{name}</span>
+                  <span class="series-count">{posts.length} 篇</span>
+                </div>
+                <ol class="series-preview">
+                  {posts.slice(0, 3).map((p, i) => (
+                    <li class="series-preview-item">
+                      <span class="item-index">{i + 1}.</span>
+                      <span class="item-title">{p.data.title}</span>
+                    </li>
+                  ))}
+                  {posts.length > 3 && (
+                    <li class="series-preview-item more">… 另有 {posts.length - 3} 篇</li>
+                  )}
+                </ol>
+                <div class="series-card-footer">
+                  <span class="series-meta">
+                    最近更新：{latest.data.pubDate.toLocaleDateString('zh-CN', { year: 'numeric', month: 'long', day: 'numeric' })}
+                  </span>
+                  <span class="series-arrow">→</span>
+                </div>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    )}
+  </main>
+</BaseLayout>
+
+<style>
+  .series-index {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    color: var(--color-text-primary, #e6edf3);
+  }
+
+  .series-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .series-breadcrumb {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.8rem;
+    color: var(--color-text-muted, #8b949e);
+    margin-bottom: 0.75rem;
+  }
+
+  .series-breadcrumb a {
+    color: var(--color-accent, #58a6ff);
+    text-decoration: none;
+  }
+
+  .series-breadcrumb a:hover { text-decoration: underline; }
+
+  .sep { margin: 0 0.35rem; opacity: 0.5; }
+
+  .series-title {
+    font-family: var(--font-mono, monospace);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--color-text-primary, #e6edf3);
+    margin: 0 0 0.5rem;
+  }
+
+  .prompt { color: var(--color-accent, #58a6ff); margin-right: 0.5rem; }
+
+  .series-desc {
+    font-size: 0.9rem;
+    color: var(--color-text-muted, #8b949e);
+    margin: 0;
+  }
+
+  .series-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .series-card {
+    border: 1px solid var(--color-border, #21262d);
+    border-radius: 8px;
+    background: var(--color-surface, #161b22);
+    transition: border-color 0.2s, transform 0.15s;
+  }
+
+  .series-card:hover {
+    border-color: var(--color-accent, #58a6ff);
+    transform: translateY(-2px);
+  }
+
+  .series-card-link {
+    display: block;
+    padding: 1.25rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .series-card-header {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .series-icon {
+    font-size: 0.7rem;
+    color: var(--color-accent, #58a6ff);
+  }
+
+  .series-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-text-primary, #e6edf3);
+    flex: 1;
+  }
+
+  .series-count {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.75rem;
+    color: var(--color-text-muted, #8b949e);
+    background: var(--color-bg, #0d1117);
+    border: 1px solid var(--color-border, #21262d);
+    border-radius: 20px;
+    padding: 0.1rem 0.6rem;
+  }
+
+  .series-preview {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+
+  .series-preview-item {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.8rem;
+    color: var(--color-text-secondary, #8b949e);
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .series-preview-item.more {
+    color: var(--color-text-muted, #6e7681);
+    font-style: italic;
+  }
+
+  .item-index { color: var(--color-accent, #58a6ff); min-width: 1.2rem; }
+
+  .item-title {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .series-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--color-border, #21262d);
+    padding-top: 0.75rem;
+  }
+
+  .series-meta {
+    font-size: 0.75rem;
+    color: var(--color-text-muted, #6e7681);
+    font-family: var(--font-mono, monospace);
+  }
+
+  .series-arrow {
+    color: var(--color-accent, #58a6ff);
+    font-size: 0.9rem;
+    transition: transform 0.2s;
+  }
+
+  .series-card:hover .series-arrow { transform: translateX(4px); }
+
+  .empty-state {
+    color: var(--color-text-muted, #8b949e);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.9rem;
+    padding: 2rem 0;
+  }
+
+  @media (max-width: 600px) {
+    .series-index { padding: 1.5rem 1rem 3rem; }
+  }
+</style>
