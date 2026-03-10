@@ -10,6 +10,7 @@
       </span>
       <input id="search-input" type="text" placeholder="搜索文章..." autocomplete="off" />
       <kbd class="search-kbd">ESC</kbd>
+      <kbd class="search-kbd search-kbd-slash">/</kbd>
     </div>
     <div id="search-results" class="search-results"></div>
   </div>
@@ -57,9 +58,14 @@
         btn.addEventListener('click', openSearch);
       });
 
-      // Ctrl+K / Cmd+K
+      // Ctrl+K / Cmd+K or /
       document.addEventListener('keydown', function(e) {
         if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+          e.preventDefault();
+          openSearch();
+        }
+        // / key — only when not typing in an input/textarea
+        if (e.key === '/' && document.activeElement && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA' && !document.activeElement.isContentEditable) {
           e.preventDefault();
           openSearch();
         }

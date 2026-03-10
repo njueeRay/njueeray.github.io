@@ -50,9 +50,19 @@ for (const p of posts) {
           <span class="cmd"> ls blog/ --sort=date</span>
         </h1>
         <p class="page-desc">
-          Thoughts on LLM engineering, AI-Native development, and open source. ·
-          <a href="/blog/tags" class="tags-link">全部标签 →</a>
+          Thoughts on LLM engineering, AI-Native development, and open source.
         </p>
+        <div class="blog-nav-links">
+          <a href="/blog/tags" class="blog-nav-link">
+            <span class="nav-link-icon">#</span> 标签
+          </a>
+          <a href="/blog/series" class="blog-nav-link">
+            <span class="nav-link-icon">▶</span> 系列
+          </a>
+          <a href="/blog/archive" class="blog-nav-link">
+            <span class="nav-link-icon">⌥</span> 归档
+          </a>
+        </div>
       </div>
 
       <FilterTabs counts={counts} />
@@ -114,14 +124,38 @@ for (const p of posts) {
     color: var(--color-text-muted);
     margin-bottom: 0.75rem;
   }
-  .page-desc { color: var(--color-text-muted); font-size: 0.9rem; }
-  .tags-link {
+  .page-desc { color: var(--color-text-muted); font-size: 0.9rem; margin-bottom: 0.75rem; }
+
+  .blog-nav-links {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-top: 0.5rem;
+  }
+
+  .blog-nav-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
     font-family: var(--font-mono);
-    font-size: 0.82rem;
+    font-size: 0.78rem;
     color: var(--color-text-muted);
     text-decoration: none;
+    border: 1px solid var(--color-border, #21262d);
+    border-radius: 20px;
+    padding: 0.18rem 0.65rem;
+    transition: color 0.15s, border-color 0.15s;
   }
-  .tags-link:hover { color: var(--color-accent); }
+
+  .blog-nav-link:hover {
+    color: var(--color-accent, #58a6ff);
+    border-color: var(--color-accent, #58a6ff);
+  }
+
+  .nav-link-icon {
+    font-size: 0.65rem;
+    opacity: 0.7;
+  }
 
   .posts { list-style: none; display: flex; flex-direction: column; gap: 1.25rem; }
 

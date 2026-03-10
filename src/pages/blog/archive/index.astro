@@ -1,0 +1,294 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '@layouts/BaseLayout.astro';
+
+const allPosts = await getCollection('blog');
+
+// Sort by date desc
+const sorted = allPosts.sort(
+  (a, b) => b.data.pubDate.getTime() - a.data.pubDate.getTime()
+);
+
+// Group: year → month → posts[]
+type MonthMap = Map<string, typeof sorted>;
+type YearMap = Map<number, MonthMap>;
+
+const grouped: YearMap = new Map();
+const monthNames = ['一月','二月','三月','四月','五月','六月','七月','八月','九月','十月','十一月','十二月'];
+
+for (const post of sorted) {
+  const d = post.data.pubDate;
+  const y = d.getFullYear();
+  const m = monthNames[d.getMonth()];
+  if (!grouped.has(y)) grouped.set(y, new Map());
+  const ym = grouped.get(y)!;
+  if (!ym.has(m)) ym.set(m, []);
+  ym.get(m)!.push(post);
+}
+
+const years = [...grouped.entries()].sort((a, b) => b[0] - a[0]);
+const typeColor: Record<string, string> = {
+  insight: '#58a6ff',
+  technical: '#3fb950',
+  'member-essay': '#d2a8ff',
+  meeting: '#f0883e',
+};
+---
+
+<BaseLayout
+  title="博客归档 — njueeray"
+  description={`全部 ${allPosts.length} 篇博客按时间归档。`}
+>
+  <main id="main-content" class="archive-page">
+    <header class="archive-header">
+      <p class="archive-breadcrumb">
+        <a href="/blog">博客</a> <span class="sep">›</span> 归档
+      </p>
+      <h1 class="archive-title">
+        <span class="prompt">$</span> git log --all
+      </h1>
+      <p class="archive-desc">共 {allPosts.length} 篇 · 按时间倒序</p>
+    </header>
+
+    <div class="timeline">
+      {years.map(([year, months]) => {
+        const yearTotal = [...months.values()].reduce((acc, posts) => acc + posts.length, 0);
+        return (
+          <section class="year-group">
+            <h2 class="year-heading">
+              <span class="year-marker">──</span>
+              <span class="year-label">{year}</span>
+              <span class="year-count">{yearTotal} 篇</span>
+            </h2>
+            <div class="months">
+              {[...months.entries()].map(([month, posts]) => (
+                <div class="month-group">
+                  <h3 class="month-heading">
+                    <span class="month-dot">●</span>
+                    {month}
+                    <span class="month-count">{posts.length}</span>
+                  </h3>
+                  <ul class="post-list">
+                    {posts.map(post => (
+                      <li class="post-row">
+                        <span class="post-date-tag">
+                          {post.data.pubDate.toLocaleDateString('zh-CN', { month: '2-digit', day: '2-digit' })}
+                        </span>
+                        {post.data.contentType && (
+                          <span
+                            class="post-type-dot"
+                            style={`background:${typeColor[post.data.contentType] ?? '#8b949e'}`}
+                            title={post.data.contentType}
+                          />
+                        )}
+                        <a href={`/blog/${post.id}`} class="post-link">
+                          {post.data.title}
+                        </a>
+                        {post.data.series && (
+                          <span class="post-series-badge" title={`系列：${post.data.series}`}>
+                            ⊃
+                          </span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })}
+    </div>
+
+    <footer class="archive-footer">
+      <a href="/blog" class="back-link">← 返回博客</a>
+      <a href="/blog/series" class="series-link">文章系列 →</a>
+    </footer>
+  </main>
+</BaseLayout>
+
+<style>
+  .archive-page {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    color: var(--color-text-primary, #e6edf3);
+  }
+
+  .archive-header { margin-bottom: 2.5rem; }
+
+  .archive-breadcrumb {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.8rem;
+    color: var(--color-text-muted, #8b949e);
+    margin-bottom: 0.75rem;
+  }
+
+  .archive-breadcrumb a {
+    color: var(--color-accent, #58a6ff);
+    text-decoration: none;
+  }
+
+  .archive-breadcrumb a:hover { text-decoration: underline; }
+
+  .sep { margin: 0 0.35rem; opacity: 0.5; }
+
+  .archive-title {
+    font-family: var(--font-mono, monospace);
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-text-primary, #e6edf3);
+    margin: 0 0 0.4rem;
+  }
+
+  .prompt { color: var(--color-accent, #58a6ff); margin-right: 0.5rem; }
+
+  .archive-desc {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.8rem;
+    color: var(--color-text-muted, #8b949e);
+    margin: 0;
+  }
+
+  /* Timeline */
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 2.5rem;
+  }
+
+  .year-group {}
+
+  .year-heading {
+    font-family: var(--font-mono, monospace);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-text-primary, #e6edf3);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 1.25rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--color-border, #21262d);
+  }
+
+  .year-marker {
+    color: var(--color-accent, #58a6ff);
+    font-size: 0.7rem;
+    letter-spacing: -2px;
+  }
+
+  .year-label { flex: 1; }
+
+  .year-count {
+    font-size: 0.72rem;
+    color: var(--color-text-muted, #8b949e);
+    background: var(--color-bg, #0d1117);
+    border: 1px solid var(--color-border, #21262d);
+    border-radius: 20px;
+    padding: 0.1rem 0.55rem;
+  }
+
+  .months { display: flex; flex-direction: column; gap: 1.25rem; }
+
+  .month-group {}
+
+  .month-heading {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--color-text-secondary, #c9d1d9);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0 0 0.6rem;
+  }
+
+  .month-dot {
+    color: var(--color-green, #3fb950);
+    font-size: 0.5rem;
+  }
+
+  .month-count {
+    font-size: 0.72rem;
+    color: var(--color-text-muted, #6e7681);
+    background: rgba(63, 185, 80, 0.08);
+    border-radius: 20px;
+    padding: 0.05rem 0.45rem;
+    margin-left: auto;
+  }
+
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    padding-left: 1.2rem;
+    border-left: 2px solid var(--color-border, #21262d);
+  }
+
+  .post-row {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.2rem 0;
+  }
+
+  .post-date-tag {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.72rem;
+    color: var(--color-text-muted, #6e7681);
+    min-width: 2.8rem;
+  }
+
+  .post-type-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .post-link {
+    font-size: 0.875rem;
+    color: var(--color-text-primary, #e6edf3);
+    text-decoration: none;
+    flex: 1;
+    transition: color 0.15s;
+  }
+
+  .post-link:hover { color: var(--color-accent, #58a6ff); }
+
+  .post-series-badge {
+    font-size: 0.7rem;
+    color: var(--color-accent, #58a6ff);
+    opacity: 0.6;
+    flex-shrink: 0;
+    title: 'attr(title)';
+  }
+
+  /* Legend */
+  .archive-footer {
+    margin-top: 3rem;
+    border-top: 1px solid var(--color-border, #21262d);
+    padding-top: 1.25rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .back-link, .series-link {
+    font-family: var(--font-mono, monospace);
+    font-size: 0.82rem;
+    color: var(--color-accent, #58a6ff);
+    text-decoration: none;
+  }
+
+  .back-link:hover, .series-link:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    .archive-page { padding: 1.5rem 1rem 3rem; }
+    .post-link { font-size: 0.82rem; }
+  }
+</style>
