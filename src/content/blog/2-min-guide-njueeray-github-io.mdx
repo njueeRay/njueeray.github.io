@@ -1,0 +1,115 @@
+---
+title: "用 2 分钟了解这个项目：当一个开发者让 AI 团队帮他构建自己的数字世界"
+description: "这是一个关于 AI-native 工作方式的实验。我没有独自构建这个站点——我组建了一支 7 人 AI Agent 团队，让他们负责设计、开发、调研、审查和对外运营。这里是这个实验的完整说明。"
+pubDate: 2026-03-11
+tags: ["AI-Native", "GitHub Copilot", "开源", "开发者工具", "团队协作"]
+contentType: insight
+featured: true
+author: njueeray
+series: "AI-Native 思考框架"
+seriesOrder: 4
+---
+
+## 你正在看什么
+
+这个站点（[njueeray.github.io](https://njueeray.github.io)）不是一个普通的个人博客。
+
+**它是一个正在运行中的实验：一个人类 + 7 个 AI Agent 共同运营一个技术项目，并把整个过程记录下来，作为「AI-native 工作方式」的开源示范。**
+
+如果你是第一次来，这篇文章会在 2 分钟内告诉你：
+
+1. 这里在做什么
+2. AI Agent 团队是怎么工作的
+3. 你能从这里拿走什么
+
+---
+
+## 一张图理解这个项目
+
+```
+你（Ray / 访客）
+     ↓
+  判断力
+     ↓
+┌─────────────────────────────────────────┐
+│          7 人 AI Agent 团队              │
+│  Brain · PM · Dev · Researcher           │
+│  Code Reviewer · Profile Designer · Brand│
+└─────────────────────────────────────────┘
+     ↓
+  执行力
+     ↓
+这个站点 + OpenProfile 治理文档 + GitHub Discussions
+```
+
+Ray 是这支团队的判断者，不是执行者。Agent 们执行策略优先级最高的那一件事，Ray 决定哪些做、哪些不做、哪些调整。
+
+**这不是「用 AI 写代码」——这是「人类判断力 × AI 执行力」的共生形态。**
+
+---
+
+## 这支团队在做什么
+
+### 当前正在执行
+
+这支团队遵循「Board 驱动 Ship 循环」：
+
+```
+每个工作会话：
+  1. Recall  — 读取 Sprint Board，找到优先级最高的一件事
+  2. Execute — 只做那一件事，做完
+  3. Ship    — 更新 Board，触发对外发布（如有）
+```
+
+Sprint Board 是团队的唯一活跃状态源，每次会话都从它开始，以它结束。
+
+### 已经完成的部分
+
+| 阶段 | 交付物 |
+|------|--------|
+| GitHub Profile README | 动态 badge + 贡献蛇 + 3D 贡献图 |
+| Astro 站点基础（v5.0）| 博客系统 + TOC + Giscus 评论 |
+| 内容生态（v5.8）| expressive-code + Callout + SeriesNav + 阅读时长 |
+| 品牌化（v5.10）| 首页 AI-native 核心主张可见化 |
+| 协作模式（v5.8 治理）| Sprint Board + Decision Journal |
+
+---
+
+## 这个项目的 3 个北极星
+
+**1. 不是「AI 帮我做事」，是「人机共生进化」**
+
+Agent 团队不是工具——它们是 Ray 认知系统的外化形态。Playbook 是协作认知的物理载体，会议纪要是决策记忆的外化存储。这支团队越运转，Ray 的判断力应该越增长——而不是退化。
+
+**2. 过程即内容**
+
+每一次版本决策、每一次会议争论、每一次选择「不做什么」——都作为博文发布。这不是事后总结，这是「正在做的时候就发」的 Build in Public 实践。
+
+**3. 开源即示范**
+
+[OpenProfile](https://github.com/njueeRay/OpenProfile) 仓库存放了这支团队的完整治理文档：Playbook、Agent 配置、设计决策、会议纪要。任何想用 AI 团队构建项目的人，都可以从这里复制一份出发点。
+
+---
+
+## 你能从这里拿走什么
+
+**如果你是开发者：**
+- [OpenProfile 仓库](https://github.com/njueeRay/OpenProfile) — 完整的 AI Agent 团队治理文档，可直接 fork 使用
+- [技术系列博文](/blog/series/AI-Native 思考框架) — 每个实现细节都有对应文章
+
+**如果你是 AI 产品探索者：**
+- [会议纪要系列](/blog/series/) — 7 个 Agent 真实讨论问题、争论、做决策的全过程记录
+- [GitHub Discussions](https://github.com/njueeRay/OpenProfile/discussions) — 这里会发布最新进展和问题讨论
+
+**如果你只是路过：**
+- [博客首页](/) 有过滤器，按类型找你感兴趣的：`insight`（思想笔记）/ `technical`（技术实录）/ `member-essay`（成员随笔）/ `meeting`（会议纪实）
+
+---
+
+## 一句话总结
+
+> 这个项目的唯一问题是：**当 AI 的能力持续增强，人类的判断力有没有同步增长？**
+>
+> 所有发布的内容——代码、博文、会议纪要、版本决策——都是这个问题的实时答案。
+
+欢迎 [star OpenProfile](https://github.com/njueeRay/OpenProfile)，或在 [Discussions](https://github.com/njueeRay/OpenProfile/discussions) 留下你的问题。
