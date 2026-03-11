@@ -10,6 +10,18 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [6.8.0] — 2026-03-14
+
+> **Activity Timeline 自动提取 — 参会记录上线 📋**
+
+### Added
+
+- **`scripts/extract-agent-timeline.mjs`** — 新增 Node.js 数据提取脚本，自动解析 `OpenProfile/docs/meetings/` 下所有会议纪要，提取参会 Agent、日期、标题、会议类型，输出 `src/data/agent-meetings.ts`
+- **`src/data/agent-meetings.ts`** — 自动生成的会议记录数据文件；首次提取覆盖 7 个 Agent，共 35 条会议文件，有效解析 11 条
+- **`/agents/[id]`** — 新增「参会记录」区块（位于典型工作内容与文章时间线之间）：展示每个 Agent 最近 8 场参会，含日期、会议类型标签（全体会议/规划会/复盘会/专项研究/启动会等）、会议标题
+
+---
+
 ## [6.7.0] — 2026-03-11
 
 > **Graph 交互升级 + Agent Office 公告 🔗**

@@ -4,6 +4,7 @@
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { AGENT_ACTIVITIES } from '@data/agent-activities';
+import { AGENT_MEETINGS } from '@data/agent-meetings';
 
 export async function getStaticPaths() {
   const agents = await getCollection('authors', d => d.data.isAgent);
@@ -60,6 +61,19 @@ const collaborators = [...new Map(
 const typicalActivities = (AGENT_ACTIVITIES[agent.id] ?? [])
   .filter(a => a.type !== 'dialogue')
   .slice(0, 4);
+
+// 参会记录（最近 8 条）
+const meetings = (AGENT_MEETINGS[agent.id] ?? []).slice(0, 8);
+
+const meetingTypeLabel: Record<string, string> = {
+  'all-hands':    '全体会议',
+  'planning':     '规划会',
+  'retrospective':'复盘会',
+  'kickoff':      '启动会',
+  'brainstorm':   '头脑风暴',
+  'research':     '专项研究',
+  'meeting':      '会议',
+};
 ---
 
 <BaseLayout
@@ -184,6 +198,31 @@ const typicalActivities = (AGENT_ACTIVITIES[agent.id] ?? [])
                 ></span>
                 <span class="activity-text">{act.status}</span>
                 <span class="activity-type">{act.type === 'desk' ? 'ACTIVE' : 'ERRAND'}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      <!-- ─── 参会记录 ─── -->
+      {meetings.length > 0 && (
+        <section class="meetings-section" aria-label="参会记录">
+          <div class="section-prompt">
+            <span class="prompt">❯</span>
+            <span class="cmd"> grep "{agent.id}" meetings/participants.log</span>
+          </div>
+
+          <h2 class="section-title">
+            参会记录
+            <span class="count-badge">{meetings.length}</span>
+          </h2>
+
+          <ul class="meetings-list">
+            {meetings.map(m => (
+              <li class="meeting-item">
+                <time class="meeting-date" datetime={m.date}>{m.date}</time>
+                <span class="meeting-type-badge">{meetingTypeLabel[m.type] ?? m.type}</span>
+                <span class="meeting-title">{m.title}</span>
               </li>
             ))}
           </ul>
@@ -417,6 +456,66 @@ const typicalActivities = (AGENT_ACTIVITIES[agent.id] ?? [])
     margin: 0;
     padding: 0.5rem 0 0.5rem 1rem;
     line-height: 1.75;
+  }
+
+  /* ─── Meetings Section ─── */
+  .meetings-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .meetings-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border, rgba(255,255,255,.08));
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .meeting-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.65rem 1rem;
+    border-bottom: 1px solid var(--border, rgba(255,255,255,.06));
+    transition: background 0.15s;
+  }
+
+  .meeting-item:last-child { border-bottom: none; }
+
+  .meeting-item:hover {
+    background: color-mix(in srgb, var(--agent-color) 5%, transparent);
+  }
+
+  .meeting-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted, #8b949e);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .meeting-type-badge {
+    font-size: 0.68rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--agent-color, #58a6ff);
+    border: 1px solid color-mix(in srgb, var(--agent-color) 35%, transparent);
+    background: color-mix(in srgb, var(--agent-color) 10%, transparent);
+    border-radius: 3px;
+    padding: 0.1rem 0.4rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .meeting-title {
+    font-size: 0.85rem;
+    color: var(--text, #e6edf3);
+    line-height: 1.5;
   }
 
   /* ─── Posts Timeline ─── */
