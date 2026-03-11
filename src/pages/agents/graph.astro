@@ -1,0 +1,319 @@
+---
+// /agents/graph — Agent 协作知识图谱
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import AgentKnowledgeGraph from '../../components/AgentKnowledgeGraph';
+import { agentGraphData, nodeTypeConfig, edgeTypeConfig } from '../../data/agent-graph-data';
+
+// 静态降级：提取节点/边用于 no-JS 表格
+const agents = agentGraphData.nodes.filter(n => n.type !== 'pattern');
+const edges = agentGraphData.links;
+---
+
+<BaseLayout
+  title="Agent 协作图谱 · njueeray.github.io"
+  description="可视化展示 AI 协作团队的协作关系与信息流转结构"
+>
+  <main class="graph-page">
+    <!-- Hero -->
+    <header class="graph-hero">
+      <p class="graph-cmd" aria-hidden="true">
+        <span class="prompt">$</span>
+        <span class="cmd"> agents graph --mode=interactive</span>
+      </p>
+      <h1 class="graph-title">Agent 协作图谱</h1>
+      <p class="graph-desc">
+        可视化展示 7 个 AI Agent 与 Ray 之间的协作关系、委托链路与信息流转。
+        <br />
+        <a href="/agents" class="graph-back">← 返回团队列表</a>
+      </p>
+    </header>
+
+    <!-- 交互式图谱（需要 JS） -->
+    <section class="graph-interactive" aria-label="交互式协作图谱">
+      <!-- 有 JS：渲染 React Island -->
+      <div id="graph-container" class="graph-canvas-wrapper" aria-hidden="false">
+        <AgentKnowledgeGraph
+          client:load
+          data={agentGraphData}
+          width={860}
+          height={540}
+        />
+      </div>
+      <p class="graph-hint">
+        <kbd>拖拽</kbd> 移动画布 · <kbd>滚轮</kbd> 缩放 · <kbd>悬停节点</kbd> 查看详情
+      </p>
+    </section>
+
+    <!-- 静态降级表格（始终渲染，JS 加载后可选择隐藏） -->
+    <section class="graph-static" aria-label="协作关系静态表格">
+      <h2 class="section-title">协作关系一览</h2>
+      <div class="table-wrapper">
+        <table class="relations-table">
+          <thead>
+            <tr>
+              <th scope="col">来源</th>
+              <th scope="col">关系</th>
+              <th scope="col">目标</th>
+              <th scope="col">说明</th>
+            </tr>
+          </thead>
+          <tbody>
+            {edges.map(edge => {
+              const src = agentGraphData.nodes.find(n => n.id === edge.source);
+              const tgt = agentGraphData.nodes.find(n => n.id === edge.target);
+              const typeCfg = edgeTypeConfig[edge.type];
+              return (
+                <tr key={`${edge.source}-${edge.target}`}>
+                  <td>
+                    <span class="node-badge" style={`--node-color: ${src?.color ?? '#888'}`}>
+                      {src?.symbol ?? ''} {src?.label ?? edge.source}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="edge-badge" style={`--edge-color: ${typeCfg.color}`}>
+                      {typeCfg.label}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="node-badge" style={`--node-color: ${tgt?.color ?? '#888'}`}>
+                      {tgt?.symbol ?? ''} {tgt?.label ?? edge.target}
+                    </span>
+                  </td>
+                  <td class="edge-desc">{edge.label}</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</BaseLayout>
+
+<style>
+  .graph-page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    color: var(--color-text, #e6edf3);
+  }
+
+  /* Hero */
+  .graph-hero {
+    margin-bottom: 2rem;
+  }
+  .graph-cmd {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--color-muted, #6e7681);
+    margin-bottom: 0.5rem;
+  }
+  .graph-cmd .prompt { color: var(--color-accent, #58a6ff); }
+  .graph-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--color-heading, #e6edf3);
+    margin: 0 0 0.5rem;
+  }
+  .graph-desc {
+    font-size: 0.95rem;
+    color: var(--color-muted, #6e7681);
+    line-height: 1.6;
+  }
+  .graph-back {
+    color: var(--color-accent, #58a6ff);
+    text-decoration: none;
+    font-size: 0.875rem;
+  }
+  .graph-back:hover { text-decoration: underline; }
+
+  /* 交互区 */
+  .graph-interactive {
+    margin-bottom: 3rem;
+  }
+  .graph-canvas-wrapper {
+    background: var(--color-surface, #161b22);
+    border: 1px solid var(--color-border, #30363d);
+    border-radius: 8px;
+    overflow: hidden;
+    min-height: 540px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .graph-hint {
+    font-size: 0.78rem;
+    color: var(--color-muted, #6e7681);
+    text-align: center;
+    margin-top: 0.75rem;
+  }
+  .graph-hint kbd {
+    background: var(--color-surface, #161b22);
+    border: 1px solid var(--color-border, #30363d);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: inherit;
+    font-size: 0.75rem;
+  }
+
+  /* 静态表格 */
+  .graph-static .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--color-heading, #e6edf3);
+    margin-bottom: 1rem;
+  }
+  .table-wrapper {
+    overflow-x: auto;
+    border: 1px solid var(--color-border, #30363d);
+    border-radius: 8px;
+  }
+  .relations-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+  .relations-table th {
+    background: var(--color-surface, #161b22);
+    color: var(--color-muted, #6e7681);
+    font-weight: 600;
+    text-align: left;
+    padding: 0.625rem 1rem;
+    border-bottom: 1px solid var(--color-border, #30363d);
+  }
+  .relations-table td {
+    padding: 0.5rem 1rem;
+    border-bottom: 1px solid var(--color-border-subtle, #21262d);
+    vertical-align: middle;
+  }
+  .relations-table tr:last-child td { border-bottom: none; }
+  .relations-table tr:hover td {
+    background: var(--color-surface-hover, #1c2128);
+  }
+
+  .node-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--node-color, #e6edf3);
+  }
+  .edge-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: var(--edge-color, #8b949e);
+    font-weight: 500;
+    padding: 1px 6px;
+    border-radius: 4px;
+    border: 1px solid var(--edge-color, #8b949e);
+    opacity: 0.85;
+  }
+  .edge-desc {
+    color: var(--color-muted, #6e7681);
+    font-size: 0.82rem;
+  }
+
+  /* 图谱 React Island 内嵌样式（通过 :global）*/
+  :global(.graph-loading) {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    color: var(--color-muted, #6e7681);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    padding: 4rem;
+  }
+  :global(.graph-loading-cursor) {
+    animation: blink 1s step-end infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  :global(.graph-wrapper) {
+    position: relative;
+    width: 100%;
+  }
+  :global(.graph-tooltip) {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(22, 27, 34, 0.95);
+    border: 1px solid var(--color-border, #30363d);
+    border-radius: 8px;
+    padding: 0.625rem 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    z-index: 10;
+    max-width: 220px;
+    pointer-events: none;
+  }
+  :global(.tooltip-symbol) {
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+  :global(.tooltip-body) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+  :global(.tooltip-body strong) {
+    font-size: 0.875rem;
+    color: #e6edf3;
+  }
+  :global(.tooltip-role) {
+    font-size: 0.75rem;
+    color: #8b949e;
+  }
+  :global(.tooltip-type) {
+    font-size: 0.7rem;
+    color: #58a6ff;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  :global(.graph-legend) {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    background: rgba(22, 27, 34, 0.9);
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    font-size: 0.72rem;
+    pointer-events: none;
+    max-width: 180px;
+  }
+  :global(.legend-section) {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  :global(.legend-title) {
+    color: #6e7681;
+    font-weight: 600;
+    margin-bottom: 0.1rem;
+  }
+  :global(.legend-item) {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    color: #8b949e;
+  }
+  :global(.legend-dot) {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  :global(.legend-dash) {
+    width: 14px;
+    height: 2px;
+    border-radius: 1px;
+    flex-shrink: 0;
+  }
+</style>

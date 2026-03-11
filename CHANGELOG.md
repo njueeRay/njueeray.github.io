@@ -10,6 +10,31 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [6.5.0] — 2026-03-14
+
+> **Agent Knowledge Graph — 供应链审计 + 力导向协作图谱 ⬡**
+
+### Added
+
+- **G-2** `src/data/agent-graph-data.ts` — Agent 图谱数据结构：11 个节点（1 人类 + 7 Agent + 3 Pattern）+ 17 条协作边，含完整 TypeScript 类型定义（`GraphNode` / `GraphEdge` / `GraphData`）
+- **G-3** `src/components/AgentKnowledgeGraph.tsx` — React Island 力导向图组件（懒加载 `react-force-graph`）：节点悬浮信息卡 + canvas 标签渲染 + 终端主题图例 + 优雅降级加载态
+- **G-4** `src/pages/agents/graph.astro` — `/agents/graph` 静态页面：全互动力导向图（client:load）+ 无 JS 降级为静态协作关系表格（节点色标 + 边类型徽章）
+- `/agents/index.astro` — Hero 链接新增「⬡ 协作图谱」入口
+
+### Technical
+
+- 安装 `@astrojs/react` + `react` + `react-dom` + `react-force-graph`（MIT）
+- `astro.config.mjs` 注册 React 集成；`tsconfig.json` 新增 `jsx: react-jsx`
+- `react-force-graph` 通过动态 `import()` 懒加载，不影响首屏性能
+
+### Security
+
+- **G-1** `npm audit fix`：修复 `svgo` 高危 DoS 漏洞（GHSA-xpqw-6gx7-v673）
+- 剩余 5 个 moderate 均为 `@astrojs/check` 开发工具链传递依赖，非生产运行时风险，记录在 `docs/governance/asset-health-check.md`
+- `react-force-graph@1.48.2` 许可证验证：MIT ✅
+
+---
+
 ## [6.4.0] — 2026-03-14
 
 > **Agent Persona Layer Phase 2 — Agent 详情页 + 活动时间线 🔍**
