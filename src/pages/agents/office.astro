@@ -1,0 +1,281 @@
+---
+// /agents/office — AI 团队动态工作状态可视化
+// Agent Persona Layer — v6.6.0  Canvas Office
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+import AgentOffice from '@components/AgentOffice';
+
+const allAuthors = await getCollection('authors');
+const agentOrder = ['brain', 'pm', 'dev', 'researcher', 'code-reviewer', 'profile-designer', 'brand'];
+
+const agents = agentOrder
+  .map(id => allAuthors.find(a => a.id === id && a.data.isAgent))
+  .filter(Boolean)
+  .map(a => ({
+    id:          a!.id,
+    displayName: (a!.data.displayName as string) ?? a!.id,
+    color:       (a!.data.color       as string) ?? '#58a6ff',
+    symbol:      (a!.data.symbol      as string) ?? '◈',
+  }));
+---
+
+<BaseLayout
+  title="Agent 办公室 · AI 团队实时状态"
+  description="实时观察 7 个 AI Agent 的工作状态与协作模式——谁在写代码，谁在开会，谁在传递信息。"
+>
+  <main class="office-page">
+    <div class="container">
+
+      <!-- ─── Breadcrumb ─── -->
+      <nav class="breadcrumb" aria-label="面包屑导航">
+        <a href="/agents" class="back-link">
+          <span aria-hidden="true">←</span> 返回团队
+        </a>
+        <span class="breadcrumb-sep" aria-hidden="true">/</span>
+        <span class="breadcrumb-cur">办公室</span>
+      </nav>
+
+      <!-- ─── Hero ─── -->
+      <header class="office-hero">
+        <div class="hero-prompt">
+          <span class="prompt">❯</span>
+          <span class="cmd"> watch agents --live</span>
+          <span class="cursor">█</span>
+        </div>
+        <h1 class="office-title">Agent 办公室</h1>
+        <p class="office-desc">
+          实时观察 7 个 AI Agent 的工作模式与协作动态。
+          <span class="desc-dim">点击任意 Agent 查看详情页。</span>
+        </p>
+      </header>
+
+      <!-- ─── Canvas Office（React Island） ─── -->
+      <div class="canvas-section">
+        <AgentOffice client:load agents={agents} />
+
+        <!-- 无 JS 降级 -->
+        <noscript>
+          <div class="fallback">
+            <p>请启用 JavaScript 以查看动态可视化。</p>
+            <ul class="fallback-list">
+              {agents.map(a => (
+                <li><a href={`/agents/${a.id}`}>{a.displayName}</a></li>
+              ))}
+            </ul>
+          </div>
+        </noscript>
+      </div>
+
+      <!-- ─── 图例 ─── -->
+      <div class="legend" role="list" aria-label="状态图例">
+        <div class="legend-item" role="listitem">
+          <span class="dot dot-green"></span>
+          <span class="legend-label">ACTIVE — 桌面工作中</span>
+        </div>
+        <div class="legend-item" role="listitem">
+          <span class="dot dot-blue"></span>
+          <span class="legend-label">COLLAB — 跨 Agent 协作</span>
+        </div>
+        <div class="legend-item" role="listitem">
+          <span class="dot dot-yellow"></span>
+          <span class="legend-label">ERRAND — 外出任务</span>
+        </div>
+        <div class="legend-sep" aria-hidden="true">|</div>
+        <div class="legend-note">活动基于角色定义自动轮转，无真实后端数据</div>
+      </div>
+
+      <!-- ─── 相关导航 ─── -->
+      <nav class="related-nav" aria-label="关联页面">
+        <a href="/agents" class="nav-chip">
+          <span aria-hidden="true">⊟</span> 团队卡片
+        </a>
+        <a href="/agents/graph" class="nav-chip">
+          <span aria-hidden="true">⬡</span> 协作图谱
+        </a>
+        <a href="/team" class="nav-chip">
+          <span aria-hidden="true">⎇</span> 成长历史
+        </a>
+      </nav>
+
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .office-page {
+    padding: 2rem 0 5rem;
+    min-height: 80vh;
+  }
+
+  /* ― Breadcrumb ― */
+  .breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+
+  .back-link {
+    color: var(--accent-blue);
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .back-link:hover { opacity: 0.8; }
+
+  .breadcrumb-sep { color: var(--text-muted); }
+  .breadcrumb-cur { color: var(--text-primary); }
+
+  /* ― Hero ― */
+  .office-hero {
+    margin-bottom: 2rem;
+  }
+
+  .hero-prompt {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    color: var(--accent-green);
+    margin-bottom: 0.75rem;
+  }
+
+  .prompt { color: var(--accent-green); }
+  .cmd    { color: var(--text-secondary); }
+
+  .cursor {
+    display: inline-block;
+    color: var(--accent-green);
+    animation: blink 1.2s step-end infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0; }
+  }
+
+  .office-title {
+    font-size: clamp(1.6rem, 3vw, 2.2rem);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem;
+    line-height: 1.2;
+  }
+
+  .office-desc {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .desc-dim { color: var(--text-muted); }
+
+  /* ― Canvas Section ― */
+  .canvas-section {
+    margin-bottom: 1.25rem;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .fallback {
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+
+  .fallback-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .fallback-list a {
+    color: var(--accent-blue);
+    text-decoration: none;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: var(--font-mono);
+  }
+
+  /* ― Legend ― */
+  .legend {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    margin-bottom: 2rem;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-secondary);
+  }
+
+  .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-green  { background: #3fb950; box-shadow: 0 0 5px #3fb95066; }
+  .dot-blue   { background: #58a6ff; }
+  .dot-yellow { background: #e3b341; }
+
+  .legend-label { color: var(--text-secondary); }
+
+  .legend-sep {
+    color: var(--border);
+  }
+
+  .legend-note {
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    font-style: italic;
+    font-family: var(--font-sans);
+  }
+
+  /* ― Related Nav ― */
+  .related-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .nav-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.82rem;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    text-decoration: none;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .nav-chip:hover {
+    color: var(--accent-blue);
+    border-color: var(--accent-blue);
+  }
+</style>

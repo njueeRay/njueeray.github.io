@@ -62,6 +62,9 @@ const sortedAgents = agentOrder
           <a href="/agents/graph" class="hero-link hero-link--graph">
             <span class="link-icon">⬡</span> 协作图谱
           </a>
+          <a href="/agents/office" class="hero-link hero-link--office">
+            <span class="link-icon">⌨</span> 实时办公室
+          </a>
         </div>
       </header>
 
@@ -217,6 +220,16 @@ const sortedAgents = agentOrder
   .hero-link:hover {
     background: rgba(88, 166, 255, 0.08);
     border-color: rgba(88, 166, 255, 0.6);
+  }
+
+  /* Office 链接用 cyan 强调 */
+  .hero-link--office {
+    border-color: rgba(12, 133, 153, 0.5);
+    color: #39d2c0;
+  }
+  .hero-link--office:hover {
+    background: rgba(12, 133, 153, 0.1);
+    border-color: rgba(12, 133, 153, 0.8);
   }
 
   /* ─── Grid ─── */

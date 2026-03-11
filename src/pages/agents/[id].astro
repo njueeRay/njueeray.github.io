@@ -1,8 +1,9 @@
 ---
 // /agents/[id] — Agent 详情页
-// Agent Persona Layer Phase 2 — v6.4.0
+// Agent Persona Layer Phase 2 — v6.4.0 / Enhanced v6.6.0
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { AGENT_ACTIVITIES } from '@data/agent-activities';
 
 export async function getStaticPaths() {
   const agents = await getCollection('authors', d => d.data.isAgent);
@@ -40,6 +41,25 @@ const agentSchema = {
   url: `${siteUrl}/agents/${agent.id}`,
   applicationCategory: 'ProductivityApplication',
 };
+
+// 协作关系 — 从活动数据中提取 dialogue 目标
+const allAgents = await getCollection('authors', d => d.data.isAgent);
+const agentMap  = new Map(allAgents.map(a => [a.id, a.data]));
+const dialogueActivities = (AGENT_ACTIVITIES[agent.id] ?? []).filter(a => a.type === 'dialogue' && a.meetWith);
+const collaborators = [...new Map(
+  dialogueActivities.map(a => [a.meetWith!, {
+    id:    a.meetWith!,
+    name:  (agentMap.get(a.meetWith!)?.displayName as string) ?? a.meetWith!,
+    color: (agentMap.get(a.meetWith!)?.color       as string) ?? '#58a6ff',
+    symbol:(agentMap.get(a.meetWith!)?.symbol       as string) ?? '◈',
+    examples: dialogueActivities.filter(d => d.meetWith === a.meetWith!).map(d => d.status),
+  }])
+).values()];
+
+// 典型活动采样（desk + errand，取前 4 条）
+const typicalActivities = (AGENT_ACTIVITIES[agent.id] ?? [])
+  .filter(a => a.type !== 'dialogue')
+  .slice(0, 4);
 ---
 
 <BaseLayout
@@ -109,6 +129,66 @@ const agentSchema = {
           </div>
         </div>
       </section>
+
+      <!-- ─── 协作网络 ─── -->
+      {collaborators.length > 0 && (
+        <section class="collab-section" aria-label="协作关系">
+          <div class="section-prompt">
+            <span class="prompt">❯</span>
+            <span class="cmd"> grep -r "meetWith={agent.id}" activities/</span>
+          </div>
+
+          <h2 class="section-title">
+            协作网络
+            <span class="count-badge">{collaborators.length}</span>
+          </h2>
+
+          <div class="collab-grid">
+            {collaborators.map(c => (
+              <a href={`/agents/${c.id}`} class="collab-card" style={`--collab-color: ${c.color};`}>
+                <div class="collab-symbol" aria-hidden="true">{c.symbol}</div>
+                <div class="collab-info">
+                  <div class="collab-name">{c.name.split('·')[0].trim()}</div>
+                  <div class="collab-example">{c.examples[0]?.replace('→ ', '').split('：')[1] ?? '协作中'}</div>
+                </div>
+                <span class="collab-arrow" aria-hidden="true">→</span>
+              </a>
+            ))}
+          </div>
+
+          <div class="office-hint">
+            <a href="/agents/office" class="office-link">
+              <span aria-hidden="true">⌨</span> 在 Agent 办公室观察实时协作动态
+            </a>
+          </div>
+        </section>
+      )}
+
+      <!-- ─── 典型工作内容 ─── -->
+      {typicalActivities.length > 0 && (
+        <section class="activities-section" aria-label="典型工作内容">
+          <div class="section-prompt">
+            <span class="prompt">❯</span>
+            <span class="cmd"> cat {agent.id}/activities.log | head -n 4</span>
+          </div>
+
+          <h2 class="section-title">典型工作内容</h2>
+
+          <ul class="activities-list">
+            {typicalActivities.map(act => (
+              <li class="activity-item">
+                <span
+                  class="activity-dot"
+                  aria-label={act.type === 'desk' ? '桌面工作' : '外出任务'}
+                  style={`background: ${act.type === 'desk' ? '#3fb950' : '#e3b341'}`}
+                ></span>
+                <span class="activity-text">{act.status}</span>
+                <span class="activity-type">{act.type === 'desk' ? 'ACTIVE' : 'ERRAND'}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       <!-- ─── Article Timeline ─── -->
       <section class="posts-section" aria-label="文章时间线">
@@ -497,5 +577,135 @@ const agentSchema = {
     .about-grid { grid-template-columns: 1fr; }
     .profile-body { flex-direction: column; gap: 0.75rem; }
     .profile-symbol { font-size: 2.5rem; }
+  }
+
+  /* ─── Collaboration Network ─── */
+  .collab-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .collab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .collab-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.7rem 0.9rem;
+    background: var(--bg-secondary, #161b22);
+    border: 1px solid color-mix(in srgb, var(--collab-color) 22%, var(--border, #30363d));
+    border-radius: 8px;
+    text-decoration: none;
+    transition: border-color 0.15s, background 0.15s;
+    position: relative;
+  }
+
+  .collab-card:hover {
+    border-color: color-mix(in srgb, var(--collab-color) 55%, transparent);
+    background: color-mix(in srgb, var(--collab-color) 6%, var(--bg-secondary, #161b22));
+  }
+
+  .collab-symbol {
+    font-size: 1.5rem;
+    color: var(--collab-color);
+    flex-shrink: 0;
+    line-height: 1;
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--collab-color) 45%, transparent));
+  }
+
+  .collab-info {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .collab-name {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text-primary, #e6edf3);
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .collab-example {
+    font-size: 0.72rem;
+    color: var(--text-muted, #8b949e);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 0.15rem;
+  }
+
+  .collab-arrow {
+    font-size: 0.75rem;
+    color: var(--collab-color);
+    opacity: 0.7;
+    flex-shrink: 0;
+  }
+
+  .office-hint {
+    margin-top: 0.75rem;
+  }
+
+  .office-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-family: 'JetBrains Mono', monospace;
+    color: #39d2c0;
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.15s;
+  }
+  .office-link:hover { opacity: 1; }
+
+  /* ─── Typical Activities ─── */
+  .activities-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .activities-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    padding: 0.55rem 0.9rem;
+    background: var(--bg-secondary, #161b22);
+    border: 1px solid var(--border, #30363d);
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .activity-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .activity-text {
+    flex: 1;
+    font-size: 0.82rem;
+    color: var(--text-primary, #e6edf3);
+  }
+
+  .activity-type {
+    font-size: 0.68rem;
+    color: var(--text-muted, #8b949e);
+    letter-spacing: 0.04em;
   }
 </style>

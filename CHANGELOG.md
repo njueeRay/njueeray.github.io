@@ -10,6 +10,28 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [6.6.0] — 2026-03-14
+
+> **Agent Persona Deep Layer — 动态办公室 + 协作网络面板 🏢**
+>
+> 参考工程：`yedanyagamiai-cmd/pixel-office`（活动模型）、`hulryung/mohano`（CSS 设计系统）
+
+### Added
+
+- **`src/data/agent-activities.ts`** — Agent 活动数据层：7 个 Agent 各自的 desk / errand / dialogue 三类活动定义（含对话关系图），Canvas Home 坐标 + Errand 漫游坐标
+- **`src/components/AgentOffice.tsx`** — Canvas React Island 动态办公室：7 个 Agent 终端 token 在办公室布局中平滑移动；活动轮转状态机（desk/errand/dialogue）；对话时虚线连接动画；点击跳转 `/agents/<id>` 详情；无 JS 降级为静态列表
+- **`src/pages/agents/office.astro`** — `/agents/office` 新页面：Canvas Office 展示 + 状态图例 + 相关导航
+- **`/agents/index.astro`** — Hero 区新增「⌨ 实时办公室」入口（cyan 色调差异化）
+- **`/agents/[id].astro`** — 详情页新增协作网络面板（从 AGENT_ACTIVITIES 自动提取 dialogue 关系）+ 典型工作内容列表（desk/errand 采样前 4 条）+ 跳转 Office 页面链接
+
+### Technical
+
+- `@data/agent-activities` 路径别名复用现有 tsconfig 配置（零额外依赖）
+- Canvas `roundRect` polyfill：优雅兼容不支持的旧浏览器
+- 活动状态机：错开初始化时序（index × 700ms stagger）防止同步切换视觉问题
+
+---
+
 ## [6.5.0] — 2026-03-14
 
 > **Agent Knowledge Graph — 供应链审计 + 力导向协作图谱 ⬡**
