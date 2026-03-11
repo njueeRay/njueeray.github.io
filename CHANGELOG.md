@@ -10,6 +10,20 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [6.1.0] — 2026-03-11
+
+> **读者入口 + 外循环机制正式化 📖**
+
+### Added
+
+- **C-1** `src/content/blog/2-min-guide-njueeray-github-io.mdx` — 读者入口文章「用 2 分钟了解这个项目」：AI-native 工作方式核心主张 + 团队架构 + 项目地图；`featured: true`，系列「AI-Native 思考框架」第 4 篇
+
+### Changed
+
+- **C-2** v6.x 新规正式化：每个 Minor 版本发布后 Brand 72h 内输出 Discussion 或博文摘要；PM 在下一版本提案时强制检查上一版本外循环是否完成
+
+---
+
 ## [6.0.0] — 2026-03-11
 
 > **博客内容生态完整落地 📝 — 里程碑确认**
