@@ -10,6 +10,23 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [6.4.0] — 2026-03-14
+
+> **Agent Persona Layer Phase 2 — Agent 详情页 + 活动时间线 🔍**
+
+### Added
+
+- **F-2** `src/pages/agents/[id].astro` — 7 个 Agent 独立详情页（SSG）：大符号 Profile Card（名称/角色/tagline/技能 pills/加入日期/文章数）+ Bio & Philosophy 双栏 + 文章时序时间线（含内容类型徽章/系列标记/摘要）
+- **F-3** `OpenProfile/docs/brand/discussion-agent-personas-draft.md` — Brand Discussion #9 草稿：7 个 Agent 第一人称自述 + 「为什么给 AI Agent 赋予人格」讨论话题
+
+### Technical
+
+- Agent 详情页使用相同 `--agent-color` CSS 变量系统，与列表页保持风格统一
+- 时间线组件（`timeline` + `timeline-dot`）含 glow 效果，与 GitTimeline 组件视觉语言一致
+- JSON-LD `SoftwareApplication` schema 注入各 Agent 详情页
+
+---
+
 ## [6.3.0] — 2026-03-11
 
 > **Agent Persona Layer Phase 0 + 1 — AI 团队可视化身份系统 🤖**
