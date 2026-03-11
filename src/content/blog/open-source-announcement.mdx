@@ -1,0 +1,191 @@
+---
+title: "OpenProfile 正式开源：如何用 AI Agent 协作构建你的 GitHub Profile"
+description: "我们用 7 个 AI Agent 的协同工作，在两个月内完成了从零到完整 GitHub Profile + 个人站点的全部工作。今天正式开源——这不只是一个 Profile 模板，而是一套 AI-native 工作方式的完整示范。"
+pubDate: 2026-03-11
+tags: ["AI-Native", "开源", "GitHub Profile", "GitHub Copilot", "工程实践"]
+contentType: technical
+featured: false
+author: njueeray
+series: "AI-Native 思考框架"
+seriesOrder: 5
+---
+
+import Callout from '../../components/Callout.astro'
+
+两个月前，我开始了一个实验：**不独自构建个人主页，而是组建一支 AI Agent 团队，交给他们去完成。**
+
+今天，[OpenProfile](https://github.com/njueeRay/OpenProfile) 正式开源。这篇文章是这个项目的完整技术故事——从动机到架构，从踩坑到决策，从工具链到工作流。
+
+---
+
+## 为什么要这样做
+
+大多数「用 AI 辅助编程」的实践，本质上还是：**人驱动，AI 执行**。
+
+我想探索的是另一种形态：**AI 驱动执行，人只做判断**。
+
+区别在哪里？
+
+| 维度 | AI-assisted | AI-native |
+|------|-------------|-----------|
+| 主导者 | 人（逐步指令）| 系统（Board 驱动循环）|
+| AI 角色 | 工具 | 团队成员 |
+| 人的角色 | 执行者 + 判断者 | 只做判断 |
+| 是否可持续 | 依赖人的精力 | 依赖系统的运转 |
+
+**AI-native 的最终目标不是更快地完成任务，而是让人的判断力随 AI 能力的增强同步成长。**
+
+---
+
+## 项目结构
+
+这个项目有两个仓库：
+
+```
+njueeRay/OpenProfile        — 治理仓库（Agent 规范 + Playbook + 决策日志）
+njueeRay/njueeray.github.io — 站点仓库（Astro 5 博客 + GitHub Profile）
+```
+
+### Agent 团队架构
+
+```
+Brain     ── 战略协调，唯一汇报窗口
+├── PM    ── Sprint 规划，版本管理
+├── Dev   ── 全栈实现（代码 / 文档 / CI）
+├── Researcher ── 技术调研（只读）
+├── Code Reviewer ── 七维度质量门禁
+├── Profile Designer ── 视觉规划（按需）
+└── Brand ── 对外运营 + 内容发布
+```
+
+每个 Agent 都有独立的 `*.agent.md` 文件（在 `.github/agents/` 目录），定义了它的：
+- 职责边界
+- 权限级别（读写 / 只读 / 只读+诊断）
+- 核心工作流
+- 与其他 Agent 的协作接口
+
+<Callout type="tip">
+你可以把这套 Agent 架构复制到任何你的项目里，替换角色名和职责，立刻获得一套可用的 AI Agent 协作体系。
+</Callout>
+
+---
+
+## 技术选型
+
+### 站点技术栈
+
+| 层 | 技术 | 理由 |
+|----|------|------|
+| 框架 | Astro 5 + Content Layer API | SSG + 零运行时 JS，部署 GitHub Pages 零成本 |
+| 代码块 | astro-expressive-code | 一键复制 + 行高亮 + 文件名，无需配置 |
+| 搜索 | Pagefind | 构建后索引，无服务器依赖，Ctrl+K 弹窗 |
+| 评论 | Giscus → GitHub Discussions | 零数据库，主题联动 |
+| 主题 | github-dark-dimmed（暗）/ default（亮）| 与 GitHub 原生体验一致 |
+| 部署 | GitHub Pages + GitHub Actions | 零运营成本 |
+
+### 协作工具链
+
+| 工具 | 用途 |
+|------|------|
+| GitHub Copilot Agent (VS Code) | 主力 AI 执行环境 |
+| `.github/copilot-instructions.md` | Agent 的全局规范文件 |
+| `docs/governance/sprint-board.md` | 唯一活跃状态源（≤50 行 / ≤7 条）|
+| `docs/governance/design-decisions.md` | 设计决策深度理由档案 |
+| CHANGELOG.md | 两仓库各自独立版本历史 |
+
+---
+
+## 核心工作流：Board 驱动 Ship 循环
+
+这是本项目最重要的设计决策，确立于 [Meeting #09](https://github.com/njueeRay/OpenProfile/tree/main/docs/meetings)（2026-03-11 转折点深度反思会）。
+
+```
+每个工作会话：
+  1. Recall   — 读取 sprint-board.md（< 5 分钟）
+  2. Execute  — 只做优先级最高的一件事，做完
+  3. Ship     — 更新 Board + 触发对外动作（如有）
+```
+
+**为什么只做一件事？**
+
+因为多数「AI 效率低下」的根本原因不是 AI 的能力，而是**任务切换**和**半成品积累**。一件事做完，比十件事各做三分之一，产出的价值高得多。
+
+<Callout type="info">
+Sprint Board 的铁律：≤50 行 · ≤7 条活跃项 · 超 2 周未动则强制 triage（做 / 删 / 降为 backlog）。这不是形式规范——这是防止认知负荷失控的硬性约束。
+</Callout>
+
+---
+
+## 踩过的坑
+
+### 坑 1：Agent 越多，协调成本越高
+
+最开始只有 `dev` 和 `brain`，后来逐渐加到 7 个 Agent。问题是：每次会话开始时需要读取的上下文变多了，每个 Agent 的规范文件也在膨胀。
+
+**解决方案**：copilot-instructions.md 只保留「当前规范 + 速查表」，历史决策移到 `design-decisions.md`，执行状态移到 `sprint-board.md`。减法比加法重要。
+
+### 坑 2：版本号语义模糊
+
+早期把「完成了某个功能」和「重要的范式转移」都用 Minor 版本号，导致 v5.7 → v5.8 的变化比 v5.0 → v5.7 还重要。
+
+**解决方案**：建立明确的版本语义：Major = 范式转移或架构级升级，Minor = 功能集完成，Patch = 修复或小改。
+
+### 坑 3：「对外始终排在链条末端」
+
+写完代码、发布版本之后，才想到要写 Discussion 或博文介绍这个版本。结果大多数版本没有对外产出。
+
+**解决方案**：v6.0.0 起实施「Brand 72h 外循环强制机制」——每个 Minor 版本发布后 72h 内，Brand 必须输出 Discussion 或博文摘要，否则下个版本发布被阻断。
+
+---
+
+## 你能从这里拿走什么
+
+### 1. Agent 规范模板
+
+`.github/agents/` 目录下的 7 个 Agent 定义文件，可以直接 fork 并替换为你的项目。
+
+### 2. copilot-instructions.md 范式
+
+本项目的 `.github/copilot-instructions.md` 经过多次迭代，定义了一套「什么由 Agent 决定，什么必须由人确认」的权限边界。
+
+### 3. Sprint Board 极简治理
+
+`docs/governance/sprint-board.md` 的格式（表格 + Decision Journal）是全项目唯一的状态管理文件，50 行以内，足以驱动一个完整项目。
+
+### 4. 这套哲学本身
+
+> **AI-native 的健康标准：用户的判断力有没有随着 AI 能力的增强同步成长？**
+
+这个问题值得每一个在用 AI 的开发者认真思考。
+
+---
+
+## 开始使用
+
+```bash
+# clone OpenProfile（治理模板）
+git clone https://github.com/njueeRay/OpenProfile.git
+
+# clone njueeray.github.io（站点模板）
+git clone https://github.com/njueeRay/njueeray.github.io.git
+
+cd njueeray.github.io
+npm install
+npm run dev
+```
+
+详细的 Fork 上手流程，见 [CONTRIBUTING.md](https://github.com/njueeRay/OpenProfile/blob/main/CONTRIBUTING.md)。
+
+---
+
+## 接下来
+
+- **Agent Persona Layer**：7 个 Agent 以「像素人物」形态可视化，每张 Card 展示 Agent 的职责、加入时间和贡献轨迹
+- **forage-mcp**：一个专门用于发现和安装 Agent Skills 的 MCP 服务器
+- **Pixel Agents 社区**：向社区开放「设计你自己的 AI Agent 团队」的工作坊形式
+
+如果你有想法，欢迎在 [GitHub Discussions](https://github.com/njueeRay/OpenProfile/discussions) 留言，或直接提 PR。
+
+---
+
+*这个项目的每一个版本、每一个决策、每一个 Agent 规范文件，都是一次关于「人机共生」的真实记录。欢迎来看。*

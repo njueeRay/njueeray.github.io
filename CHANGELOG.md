@@ -10,6 +10,16 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [6.2.0] — 2026-03-11
+
+> **OpenProfile 正式开源宣布 🎉**
+
+### Added
+
+- **D-1** `src/content/blog/open-source-announcement.mdx` — 开源公告博文「如何用 AI Agent 协作构建你的 GitHub Profile」：技术选型 + Agent 架构 + 核心工作流 + 踩坑复盘 + Fork 上手指引；系列「AI-Native 思考框架」第 5 篇
+
+---
+
 ## [6.1.0] — 2026-03-11
 
 > **读者入口 + 外循环机制正式化 📖**
