@@ -1,0 +1,412 @@
+---
+// /agents — AI 协作团队展示页
+// Agent Persona Layer Phase 1 — v6.3.0
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+// 获取所有 Agent（isAgent: true），按 id 排序保证渲染稳定
+const allAuthors = await getCollection('authors');
+const agents = allAuthors
+  .filter(a => a.data.isAgent)
+  .sort((a, b) => a.id.localeCompare(b.id));
+
+// 聚合每个 Agent 的博文数 + 最近一篇
+const allPosts = await getCollection('blog', ({ data }) => !data.draft);
+allPosts.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const agentStats = new Map<string, { count: number; latest: { title: string; id: string } | null }>(
+  agents.map(a => [a.id, { count: 0, latest: null }])
+);
+for (const post of allPosts) {
+  const aid = post.data.author;
+  if (agentStats.has(aid)) {
+    const s = agentStats.get(aid)!;
+    s.count++;
+    if (!s.latest) s.latest = { title: post.data.title, id: post.id };
+  }
+}
+
+const agentOrder = ['brain', 'pm', 'dev', 'researcher', 'code-reviewer', 'profile-designer', 'brand'];
+const sortedAgents = agentOrder
+  .map(id => agents.find(a => a.id === id))
+  .filter(Boolean) as typeof agents;
+---
+
+<BaseLayout
+  title="Agents · AI 协作团队"
+  description="7 个专业化 AI Agent 构成 OpenProfile 的核心协作团队——每人有自己的角色、能力与工作哲学。"
+>
+  <main class="agents-page">
+    <div class="container">
+
+      <!-- ─── Hero ─── -->
+      <header class="agents-hero">
+        <div class="hero-prompt">
+          <span class="prompt">❯</span>
+          <span class="cmd"> ls agents/ --format=card</span>
+          <span class="cursor">█</span>
+        </div>
+        <h1 class="agents-title">AI 协作团队</h1>
+        <p class="agents-subtitle">
+          7 个专业化 AI Agent，各自持有清晰的角色边界与工作哲学，<br />
+          共同构成这个 AI-native 项目的核心执行层。
+        </p>
+        <div class="hero-links">
+          <a href="/team" class="hero-link">
+            <span class="link-icon">⎇</span> 团队成长历史
+          </a>
+          <a href="https://github.com/njueeRay/OpenProfile/blob/main/.github/copilot-instructions.md"
+             target="_blank" rel="noopener" class="hero-link">
+            <span class="link-icon">↗</span> Agent 规范文件
+          </a>
+        </div>
+      </header>
+
+      <!-- ─── Agent Cards Grid ─── -->
+      <section class="agents-grid" aria-label="AI 团队成员列表">
+        {sortedAgents.map(agent => {
+          const stats = agentStats.get(agent.id) ?? { count: 0, latest: null };
+          const color = agent.data.color ?? '#58a6ff';
+          const symbol = agent.data.symbol ?? agent.data.avatar ?? '◈';
+          return (
+            <article
+              class="agent-card"
+              style={`--agent-color: ${color};`}
+              aria-label={`${agent.data.displayName} — ${agent.data.role}`}
+            >
+              <div class="card-accent" aria-hidden="true" />
+              <div class="card-header">
+                <div class="card-symbol" aria-hidden="true">{symbol}</div>
+                <div class="card-meta">
+                  <h2 class="card-name">{agent.data.displayName}</h2>
+                  <p class="card-role">{agent.data.role}</p>
+                </div>
+              </div>
+
+              {agent.data.tagline && (
+                <p class="card-tagline">"{agent.data.tagline}"</p>
+              )}
+
+              {agent.data.skills && agent.data.skills.length > 0 && (
+                <div class="card-skills">
+                  {agent.data.skills.slice(0, 4).map((s: string) => (
+                    <span class="skill-pill">{s}</span>
+                  ))}
+                </div>
+              )}
+
+              <div class="card-footer">
+                <div class="footer-stats">
+                  <span class="stat">
+                    <span class="stat-label">加入</span>
+                    <span class="stat-val">{agent.data.joined ?? '2026-02-25'}</span>
+                  </span>
+                  <span class="stat">
+                    <span class="stat-label">文章</span>
+                    <span class="stat-val">{stats.count}</span>
+                  </span>
+                </div>
+                {stats.latest && (
+                  <a href={`/blog/${stats.latest.id}`} class="latest-post" title={stats.latest.title}>
+                    <span class="latest-arrow">→</span>
+                    <span class="latest-title">{stats.latest.title}</span>
+                  </a>
+                )}
+              </div>
+
+              <a href={`/agents/${agent.id}`} class="card-detail-link" aria-label={`查看 ${agent.data.displayName} 详情`}>
+                查看详情 ↗
+              </a>
+            </article>
+          );
+        })}
+      </section>
+
+      <!-- ─── Philosophy Section ─── -->
+      <section class="philosophy-section">
+        <div class="philosophy-prompt">
+          <span class="prompt">❯</span>
+          <span class="cmd"> cat team/philosophy.md</span>
+        </div>
+        <blockquote class="philosophy-quote">
+          AI-native 的健康标准：用户的判断力有没有随着 AI 能力的增强而同步成长？
+        </blockquote>
+        <p class="philosophy-note">
+          这支团队是 Ray 认知系统的外化形态。每个 Agent 代表一类专业能力，
+          但真正的决策权始终在人手中。
+        </p>
+      </section>
+
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .agents-page {
+    padding: 0 0 4rem;
+  }
+
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* ─── Hero ─── */
+  .agents-hero {
+    padding: 3rem 0 2.5rem;
+    border-bottom: 1px solid var(--border, rgba(255,255,255,.08));
+    margin-bottom: 3rem;
+  }
+
+  .hero-prompt {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.85rem;
+    margin-bottom: 1rem;
+    opacity: 0.7;
+  }
+  .hero-prompt .prompt { color: var(--accent, #58a6ff); }
+  .hero-prompt .cmd    { color: var(--text-muted, #8b949e); }
+  .hero-prompt .cursor {
+    color: var(--accent, #58a6ff);
+    animation: blink 1.2s step-start infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .agents-title {
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
+    font-weight: 700;
+    color: var(--text, #e6edf3);
+    margin: 0 0 0.75rem;
+    letter-spacing: -0.02em;
+  }
+
+  .agents-subtitle {
+    color: var(--text-muted, #8b949e);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin: 0 0 1.5rem;
+    max-width: 600px;
+  }
+
+  .hero-links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--accent, #58a6ff);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    border: 1px solid rgba(88, 166, 255, 0.3);
+    padding: 0.35rem 0.75rem;
+    border-radius: 4px;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .hero-link:hover {
+    background: rgba(88, 166, 255, 0.08);
+    border-color: rgba(88, 166, 255, 0.6);
+  }
+
+  /* ─── Grid ─── */
+  .agents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 4rem;
+  }
+
+  /* ─── Agent Card ─── */
+  .agent-card {
+    background: var(--card-bg, rgba(22, 27, 34, 0.8));
+    border: 1px solid var(--border, rgba(255,255,255,.08));
+    border-radius: 8px;
+    padding: 0;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+  }
+  .agent-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+    border-color: color-mix(in srgb, var(--agent-color) 40%, transparent);
+  }
+
+  .card-accent {
+    height: 3px;
+    background: var(--agent-color, #58a6ff);
+    width: 100%;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem 1.25rem 0.75rem;
+  }
+
+  .card-symbol {
+    font-size: 2rem;
+    line-height: 1;
+    color: var(--agent-color, #58a6ff);
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--agent-color) 40%, transparent));
+  }
+
+  .card-name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text, #e6edf3);
+    margin: 0 0 0.25rem;
+    line-height: 1.3;
+  }
+
+  .card-role {
+    font-size: 0.78rem;
+    color: var(--text-muted, #8b949e);
+    margin: 0;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .card-tagline {
+    padding: 0 1.25rem;
+    font-size: 0.82rem;
+    color: color-mix(in srgb, var(--agent-color) 80%, var(--text-muted));
+    font-style: italic;
+    margin: 0 0 0.75rem;
+    line-height: 1.5;
+  }
+
+  .card-skills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0 1.25rem 0.75rem;
+  }
+
+  .skill-pill {
+    font-size: 0.72rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 99px;
+    background: color-mix(in srgb, var(--agent-color) 12%, transparent);
+    color: var(--agent-color, #58a6ff);
+    border: 1px solid color-mix(in srgb, var(--agent-color) 25%, transparent);
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+  }
+
+  .card-footer {
+    margin-top: auto;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--border, rgba(255,255,255,.06));
+  }
+
+  .footer-stats {
+    display: flex;
+    gap: 1.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .stat {
+    display: flex;
+    gap: 0.35rem;
+    align-items: center;
+    font-size: 0.78rem;
+  }
+  .stat-label {
+    color: var(--text-muted, #8b949e);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .stat-val {
+    color: var(--text, #e6edf3);
+    font-weight: 500;
+  }
+
+  .latest-post {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    color: var(--text-muted, #8b949e);
+    text-decoration: none;
+    transition: color 0.15s;
+    overflow: hidden;
+  }
+  .latest-post:hover { color: var(--accent, #58a6ff); }
+  .latest-arrow { flex-shrink: 0; color: var(--agent-color, #58a6ff); }
+  .latest-title {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .card-detail-link {
+    display: block;
+    text-align: right;
+    padding: 0.5rem 1.25rem 0.75rem;
+    font-size: 0.75rem;
+    color: var(--agent-color, #58a6ff);
+    text-decoration: none;
+    font-family: 'JetBrains Mono', monospace;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+  }
+  .card-detail-link:hover { opacity: 1; }
+
+  /* ─── Philosophy ─── */
+  .philosophy-section {
+    border-top: 1px solid var(--border, rgba(255,255,255,.08));
+    padding-top: 2.5rem;
+  }
+
+  .philosophy-prompt {
+    display: flex;
+    gap: 0.25rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-muted, #8b949e);
+    margin-bottom: 1.25rem;
+  }
+  .philosophy-prompt .prompt { color: var(--accent, #58a6ff); }
+
+  .philosophy-quote {
+    font-size: 1.1rem;
+    font-style: italic;
+    color: var(--text, #e6edf3);
+    border-left: 3px solid var(--accent, #58a6ff);
+    margin: 0 0 1rem;
+    padding: 0.5rem 0 0.5rem 1.25rem;
+    line-height: 1.7;
+  }
+
+  .philosophy-note {
+    font-size: 0.9rem;
+    color: var(--text-muted, #8b949e);
+    line-height: 1.7;
+    max-width: 600px;
+  }
+
+  /* ─── Dark/Light ─── */
+  :root[data-theme='light'] .agent-card {
+    background: #fff;
+    border-color: rgba(0,0,0,.1);
+  }
+  :root[data-theme='light'] .card-name { color: #1f2328; }
+  :root[data-theme='light'] .agents-title { color: #1f2328; }
+  :root[data-theme='light'] .philosophy-quote { color: #1f2328; }
+
+  @media (max-width: 640px) {
+    .agents-grid { grid-template-columns: 1fr; }
+    .hero-links { flex-direction: column; align-items: flex-start; }
+  }
+</style>

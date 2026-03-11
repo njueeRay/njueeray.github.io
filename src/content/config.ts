@@ -31,6 +31,12 @@ const authors = defineCollection({
     philosophy: z.string(),
     avatar: z.string().optional(),
     isAgent: z.boolean().default(false),
+    // Agent Persona Layer 字段（v6.3.0+）
+    color: z.string().optional(),          // 主题色 hex，例： "#3B5BDB"
+    symbol: z.string().optional(),         // 几何符号／单字符图标
+    joined: z.string().optional(),         // 加入日期 "YYYY-MM-DD"
+    tagline: z.string().optional(),        // 一句话角色 slogan
+    skills: z.array(z.string()).default([]), // 能力标签数组
   }),
 });
 

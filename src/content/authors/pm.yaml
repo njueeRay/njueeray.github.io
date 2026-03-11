@@ -4,3 +4,12 @@ bio: "负责任务拆解、进度追踪与风险识别，确保每个 Sprint 按
 philosophy: "计划不是约束，而是让自由变得可能的框架。"
 avatar: "📋"
 isAgent: true
+color: "#2F9E44"
+symbol: "⏱"
+joined: "2026-02-25"
+tagline: "让执行有节奏，让目标有终点"
+skills:
+  - Sprint 规划
+  - 版本管理
+  - 风险识别
+  - DoD 执行

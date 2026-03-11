@@ -10,6 +10,24 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [6.3.0] — 2026-03-11
+
+> **Agent Persona Layer Phase 0 + 1 — AI 团队可视化身份系统 🤖**
+
+### Added
+
+- **E-1** `src/content/config.ts` authors schema 扩展：新增 `color`（主题色 hex）/ `symbol`（几何符号）/ `joined`（加入日期）/ `tagline`（一句话简介）/ `skills`（能力标签数组）五个可选字段
+- **E-2** 7 个 Agent YAML 文件填充视觉身份数据：每个 Agent 获得独特主题色、几何符号、tagline 和 4 个技能标签
+- **E-4** `src/pages/agents/index.astro` — `/agents` 静态列表页：7 张 Agent Card，含 symbol / name / role / tagline / skills pills / joined / 文章数 + 最近一篇链接；底部附 AI-Native 哲学区块
+- **E-5** `src/components/Nav.astro` — 导航栏新增 `/agents` 入口（位于 blog 与 team 之间）
+
+### Technical
+
+- Agent Card 使用 CSS 变量 `--agent-color` 驱动 `color-mix()` 实现per-agent 主题色，无需重复定义样式规则
+- 7 个 Agent 视觉方案独立记录于 `OpenProfile/docs/strategy/agent-visual-spec.md`
+
+---
+
 ## [6.2.0] — 2026-03-11
 
 > **OpenProfile 正式开源宣布 🎉**

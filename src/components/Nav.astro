@@ -22,6 +22,7 @@ const currentPath = Astro.url.pathname;
       <li><a href="/#about" class="">about</a></li>
       <li><a href="/#projects" class="">projects</a></li>
       <li><a href="/blog" class={currentPath.startsWith('/blog') ? 'active' : ''}>blog</a></li>
+      <li><a href="/agents" class={currentPath.startsWith('/agents') ? 'active' : ''}>agents</a></li>
       <li><a href="/team" class={currentPath === '/team' || currentPath === '/team/' ? 'active' : ''}>team</a></li>
       <li>
         <button data-search-trigger class="nav-icon-btn" title="搜索 (按 / 或 Ctrl+K)" aria-label="搜索 (按 / 或 Ctrl+K)">
