@@ -6,7 +6,36 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
-## [Unreleased] — v5.10.0 首页品牌化重设计
+## [Unreleased]
+
+---
+
+## [6.0.0] — 2026-03-11
+
+> **博客内容生态完整落地 📝 — 里程碑确认**
+>
+> 确认 v5.8.0~v5.10.0 系列完成所有博客内容质量目标，正式进入 v6.x 阶段。本版本为 Sprint Board 协议确立后的第一个 Major Release，标志着团队协作模式从「AI-assisted」升级为「Board 驱动 Ship 循环（AI-native）」。
+
+### Confirmed Milestone（v5.8.0~v5.10.0 期间完成）
+
+- **B-1** `astro-expressive-code` — `github-dark-dimmed` 主题 + `borderRadius: 6px` + copy button accent 色，代码块一键复制 + 文件名标注
+- **B-2** `src/components/Callout.astro` — 四类（tip/warning/info/note），终端风 icon + uppercase 标签 + 对应色系
+- **B-3** `src/lib/readingTime.ts` — 中文 500 字/分钟 + 英文 200 词/分钟，剥离 frontmatter/代码块/HTML；BlogCard + 文章页 header 均显示
+- **B-4** `src/components/SeriesNav.astro` — series + seriesOrder frontmatter + 系列内上/下篇导航；author-card 后、相关文章前
+- **H-1** `src/components/Hero.astro` — 双栏叙事重设计：terminal 动效 + narrative-col（AI-native 核心主张可见化）
+- **H-2** `src/components/Projects.astro` — GitHub API 动态数据：实时 stars/forks/activeLabel
+- **H-3** 视觉语言统一：硬编码半径值替换为设计 token
+
+### Changed
+
+- 协作模式：Board 驱动 Ship 循环（Meeting #09，2026-03-11 确立）
+- SessionStart hook 改为优先读取 Sprint Board 而非全文 copilot-instructions
+
+---
+
+## [5.10.0] — 2026-03-10
+
+> **首页品牌化重设计 🏠 — AI-native 核心主张可见化**
 
 ### Added
 
