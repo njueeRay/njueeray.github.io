@@ -32,6 +32,12 @@ export default function AgentKnowledgeGraph({ data, width = 800, height = 520 }:
     }
   }, []);
 
+  const handleNodeClick = useCallback((node: GraphNode) => {
+    if (node.type === 'agent') {
+      window.location.href = `/agents/${node.id}`;
+    }
+  }, []);
+
   if (!ForceGraph) {
     return (
       <div className="graph-loading" aria-label="图谱加载中">
@@ -69,6 +75,10 @@ export default function AgentKnowledgeGraph({ data, width = 800, height = 520 }:
         linkDirectionalArrowLength={4}
         linkDirectionalArrowRelPos={1}
         linkWidth={1.2}
+        linkDirectionalParticles={2}
+        linkDirectionalParticleSpeed={0.004}
+        linkDirectionalParticleWidth={2}
+        linkDirectionalParticleColor={(link: GraphEdge) => edgeTypeConfig[link.type]?.color ?? '#58a6ff'}
         nodeCanvasObjectMode={() => 'after'}
         nodeCanvasObject={(node: GraphNode & { x?: number; y?: number }, ctx: CanvasRenderingContext2D) => {
           if (node.x == null || node.y == null) return;
@@ -81,6 +91,7 @@ export default function AgentKnowledgeGraph({ data, width = 800, height = 520 }:
           ctx.fillText(label, node.x, node.y + (node.size ?? 6) * 2.2);
         }}
         onNodeHover={handleNodeHover}
+        onNodeClick={handleNodeClick}
         cooldownTicks={100}
         d3AlphaDecay={0.02}
         d3VelocityDecay={0.3}

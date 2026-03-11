@@ -10,6 +10,22 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [6.7.0] — 2026-03-11
+
+> **Graph 交互升级 + Agent Office 公告 🔗**
+
+### Changed
+
+- **`AgentKnowledgeGraph.tsx`** — 图谱节点可点击交互：点击 Agent 节点直接跳转到 `/agents/<id>` 详情页（`onNodeClick` handler）
+- **`AgentKnowledgeGraph.tsx`** — 协作边增加有向粒子流动动画：`linkDirectionalParticles={2}`，速度 0.004，粒子宽度 2px，颜色随边类型变化（报告/委托/协作/审查/输入各自颜色）
+- **`/agents/graph`** — hint 提示文字新增「点击 Agent 跳转详情页」说明
+
+### Brand
+
+- **Discussion #13** 发布：「🏢 AI Agent 团队现在有了一间可见的「办公室」——v6.6.0 Agent Office 上线」（[查看](https://github.com/njueeRay/njueeray.github.io/discussions/13)）
+
+---
+
 ## [6.6.0] — 2026-03-14
 
 > **Agent Persona Deep Layer — 动态办公室 + 协作网络面板 🏢**
