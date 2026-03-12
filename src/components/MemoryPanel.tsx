@@ -3,6 +3,7 @@
  * 独立 React 组件，由 AgentOffice 点击 Agent token 后弹出
  */
 import type React from 'react';
+import PixelAvatarCanvas from './PixelAvatarCanvas';
 
 // 最小化局部接口定义，避免与 AgentOffice 循环依赖
 interface MeetingRecord {
@@ -72,9 +73,12 @@ export default function MemoryPanel({ agent, onClose }: Props): React.ReactEleme
           background: agent.color + '18',
           borderBottom: `1px solid ${agent.color}33`,
         }}>
-          <span style={{ color: agent.color, fontSize: 15, lineHeight: 1 }}>
-            {agent.symbol}
-          </span>
+          <PixelAvatarCanvas
+            id={agent.id}
+            color={agent.color}
+            size={32}
+            ariaLabel={`${agent.displayName} 像素头像`}
+          />
           <span style={{ color: agent.color, fontWeight: 700, fontSize: 13, flex: 1 }}>
             {agent.displayName}
           </span>

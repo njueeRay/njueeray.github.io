@@ -10,6 +10,23 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [7.1.0] — 2026-03-14
+
+> **Pixel Avatar System — 7 个 Agent 专属像素头像**
+
+### Added
+
+- **`src/data/pixel-avatars.ts`** *(新增)* — 7 个 Agent 的 8×8 像素网格数据（0=透明/1=主色/2=强调色），附 `drawPixelAvatar(ctx, id, x, y, blockSize, color)` 纯函数
+- **`src/components/PixelAvatarCanvas.tsx`** *(新增)* — React 组件，`useEffect` 驱动 Canvas DPR 感知绘制，支持任意 `size` props，`imageRendering: pixelated` 保留素朴感
+
+### Changed
+
+- **`/agents/[id]`** — profile header 的大号装饰符号替换为 `<PixelAvatarCanvas client:visible size={64} />`
+- **`MemoryPanel.tsx`** — 标题栏 symbol emoji 替换为 `<PixelAvatarCanvas size={32} />`（独立组件，内联渲染）
+- **`AgentOffice.tsx`** — Agent 窗口背景水印从 `drawAgentSymbol` 升级为 `drawPixelAvatar`（透明度 0.12，blockSize=4，32px）
+
+---
+
 ## [7.0.0-pre] — 2026-03-14
 
 > **技术债清场 — 组件拆分 + CI 质量门禁补全**

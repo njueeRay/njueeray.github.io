@@ -21,6 +21,7 @@ import {
 } from '../data/agent-activities';
 import type { AgentActivity } from '../data/agent-activities';
 import { drawAgentSymbol, roundRect } from '../data/draw-symbols';
+import { drawPixelAvatar } from '../data/pixel-avatars';
 import MemoryPanel from './MemoryPanel';
 
 // ── Canvas 尺寸 ───────────────────────────────────────────────────
@@ -273,9 +274,9 @@ export default function AgentOffice({ agents }: Props) {
         roundRect(ctx, bx, by, BW, BH, 6);
         ctx.fill();
 
-        // 大号水印符号（低透明度，背景层）
-        ctx.globalAlpha = 0.07;
-        drawAgentSymbol(ctx, s.id, bx + BW * 0.72, by + BH / 2 + 4, 20, s.color);
+        // 像素头像（低透明度背景水印）
+        ctx.globalAlpha = 0.12;
+        drawPixelAvatar(ctx, s.id, bx + BW - 40, by + BH / 2 - 16, 4, s.color);
         ctx.globalAlpha = 1;
 
         // 标题栏背景

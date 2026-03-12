@@ -5,6 +5,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { AGENT_ACTIVITIES } from '@data/agent-activities';
 import { AGENT_MEETINGS } from '@data/agent-meetings';
+import PixelAvatarCanvas from '@components/PixelAvatarCanvas';
 
 export async function getStaticPaths() {
   const agents = await getCollection('authors', d => d.data.isAgent);
@@ -95,7 +96,15 @@ const meetingTypeLabel: Record<string, string> = {
       <header class="profile-card" aria-label={`${data.displayName} 个人名片`}>
         <div class="accent-bar" aria-hidden="true" />
         <div class="profile-body">
-          <div class="profile-symbol" aria-hidden="true">{symbol}</div>
+          <div class="profile-symbol" aria-hidden="true">
+            <PixelAvatarCanvas
+              id={agent.id}
+              color={color}
+              size={64}
+              ariaLabel={`${data.displayName} 像素头像`}
+              client:visible
+            />
+          </div>
           <div class="profile-info">
             <h1 class="profile-name">{data.displayName}</h1>
             <p class="profile-role">{data.role}</p>
