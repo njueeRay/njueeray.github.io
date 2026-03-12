@@ -10,6 +10,17 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [7.5.0] — 2026-03-14
+
+> **Build in Public — v7 三部曲对外传播**
+
+### Added
+
+- **OpenProfile Discussion #8** — 发布「v7 三部曲上线：让 AI-native 思考过程第一次变得可感知」，介绍 v7.1~v7.4 的设计逻辑与认知收获；以「你如何展示 AI 带来的认知积累」为结尾问题，征集社区反馈
+  - 链接：https://github.com/njueeRay/OpenProfile/discussions/8
+
+---
+
 ## [7.4.0] — 2026-03-14
 
 > **站内可发现性强化 — Nav + Footer + 跨页 CTA**
