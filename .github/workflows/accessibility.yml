@@ -52,3 +52,9 @@ jobs:
 
       - name: Run axe-core on team page
         run: axe http://localhost:4173/team --exit
+
+      - name: Run axe-core on agents index
+        run: axe http://localhost:4173/agents --exit
+
+      - name: Run axe-core on agents/office
+        run: axe http://localhost:4173/agents/office --exit

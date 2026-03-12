@@ -10,6 +10,24 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [7.0.0-pre] — 2026-03-14
+
+> **技术债清场 — 组件拆分 + CI 质量门禁补全**
+
+### Changed
+
+- **`AgentOffice.tsx`** — 从 655 行单体组件拆分为协调层（327 行）；drawAgentSymbol 与 roundRect 提取至独立模块
+- **`src/data/draw-symbols.ts`** *(新增)* — `drawAgentSymbol` + `roundRect` 纯函数，可独立测试
+- **`src/components/MemoryPanel.tsx`** *(新增)* — 记忆面板独立 React 组件，含 `MemoryPanelAgent` 接口；彻底解耦 CI 循环依赖
+
+### Added
+
+- **`e2e/agents.spec.ts`** *(新增)* — `/agents/*` 页面 E2E 测试，含 canvas 可访问性断言与 office 页面视觉截图对比
+- **`accessibility.yml`** — 新增 `axe-core` 扫描 `/agents` 与 `/agents/office` 页面
+- **`e2e.yml`** — 构建前自动执行 `scripts/extract-agent-timeline.mjs` 生成最新时间轴数据
+
+---
+
 ## [6.10.0] — 2026-03-14
 
 > **Agent 记忆面板 — 点击查看 Core Memory + Recall Memory 🧠**
