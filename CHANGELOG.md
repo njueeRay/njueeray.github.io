@@ -10,6 +10,19 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [7.4.0] — 2026-03-14
+
+> **站内可发现性强化 — Nav + Footer + 跨页 CTA**
+
+### Changed
+
+- **`Nav.astro`** — 新增 `workflow` 导航项指向 `/how-we-work`（位于 team 之后，search 之前）；高亮当前路径
+- **`Footer.astro`** — 重构为三列站内快链（Pages / AI-Native / Open Source）+ 原有版权行；新增分隔线
+- **`/agents/index.astro`** — Hero 链接区新增「工作协议→ /how-we-work」黄色入口
+- **`/team.astro`** — Footer CTA 区新增 workflow 横幅（黄色配色 + 终端命令提示风格）
+
+---
+
 ## [7.3.0] — 2026-03-14
 
 > **/how-we-work — AI-Native 工作流可视化指南**

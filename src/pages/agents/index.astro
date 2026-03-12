@@ -65,6 +65,9 @@ const sortedAgents = agentOrder
           <a href="/agents/office" class="hero-link hero-link--office">
             <span class="link-icon">⌨</span> 实时办公室
           </a>
+          <a href="/how-we-work" class="hero-link hero-link--workflow">
+            <span class="link-icon">◎</span> 工作协议
+          </a>
         </div>
       </header>
 
@@ -230,6 +233,16 @@ const sortedAgents = agentOrder
   .hero-link--office:hover {
     background: rgba(12, 133, 153, 0.1);
     border-color: rgba(12, 133, 153, 0.8);
+  }
+
+  /* Workflow 链接用 yellow 强调 */
+  .hero-link--workflow {
+    border-color: rgba(227, 179, 65, 0.45);
+    color: #e3b341;
+  }
+  .hero-link--workflow:hover {
+    background: rgba(227, 179, 65, 0.08);
+    border-color: rgba(227, 179, 65, 0.75);
   }
 
   /* ─── Grid ─── */

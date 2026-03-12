@@ -172,6 +172,18 @@ const typeIconMap: Record<string, string> = {
             查看开源工作流 →
           </a>
         </p>
+        <div class="workflow-cta">
+          <div class="cta-prompt" aria-hidden="true">
+            <span class="cta-prompt-char">❯</span>
+            <span class="cta-cmd"> cat how-we-work.md | head -1</span>
+          </div>
+          <p class="cta-text">
+            想知道这个团队实际上<strong>怎么工作</strong>？三段式协议、Sprint Board 铁律、决策管道……
+          </p>
+          <a href="/how-we-work" class="cta-link">
+            读 /how-we-work →
+          </a>
+        </div>
       </section>
 
     </div>
@@ -510,6 +522,46 @@ const typeIconMap: Record<string, string> = {
   .footer-line a:hover {
     text-decoration: underline;
   }
+
+  .workflow-cta {
+    margin-top: 1.5rem;
+    padding: 1.25rem 1.5rem;
+    background: rgba(227, 179, 65, .05);
+    border: 1px solid rgba(227, 179, 65, .2);
+    border-radius: 8px;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+  }
+
+  .cta-prompt {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.75rem;
+    color: var(--color-text-muted);
+    opacity: 0.6;
+    margin-bottom: 0.6rem;
+    display: flex;
+    gap: 0.25rem;
+  }
+  .cta-prompt-char { color: #e3b341; }
+
+  .cta-text {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+    line-height: 1.65;
+    margin: 0 0 0.85rem;
+  }
+  .cta-text strong { color: var(--color-text); }
+
+  .cta-link {
+    font-family: var(--font-mono, 'JetBrains Mono', monospace);
+    font-size: 0.82rem;
+    color: #e3b341;
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .cta-link:hover { opacity: 0.75; }
 
   /* ─── 响应式 ─── */
   @media (max-width: 600px) {
