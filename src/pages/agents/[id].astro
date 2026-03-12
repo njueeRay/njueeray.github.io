@@ -5,6 +5,7 @@ import BaseLayout from '@layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import { AGENT_ACTIVITIES } from '@data/agent-activities';
 import { AGENT_MEETINGS } from '@data/agent-meetings';
+import { getKnowledgeByAgent, CATEGORY_LABELS, CATEGORY_COLORS } from '@data/agent-knowledge';
 import PixelAvatarCanvas from '@components/PixelAvatarCanvas';
 
 export async function getStaticPaths() {
@@ -65,6 +66,15 @@ const typicalActivities = (AGENT_ACTIVITIES[agent.id] ?? [])
 
 // 参会记录（最近 8 条）
 const meetings = (AGENT_MEETINGS[agent.id] ?? []).slice(0, 8);
+
+// 知识体系（L3 Knowledge Layer）
+const knowledgeEntries = getKnowledgeByAgent(agent.id);
+const knowledgeByCategory = knowledgeEntries.reduce((acc, entry) => {
+  if (!acc[entry.category]) acc[entry.category] = [];
+  acc[entry.category].push(entry);
+  return acc;
+}, {} as Record<string, typeof knowledgeEntries>);
+const knowledgeCategories = Object.keys(knowledgeByCategory) as Array<keyof typeof CATEGORY_LABELS>;
 
 const meetingTypeLabel: Record<string, string> = {
   'all-hands':    '全体会议',
@@ -235,6 +245,50 @@ const meetingTypeLabel: Record<string, string> = {
               </li>
             ))}
           </ul>
+        </section>
+      )}
+
+      <!-- ─── 知识体系 (L3) ─── -->
+      {knowledgeEntries.length > 0 && (
+        <section class="knowledge-section" aria-label="知识体系">
+          <div class="section-prompt">
+            <span class="prompt">❯</span>
+            <span class="cmd"> cat {agent.id}/knowledge.db | jq</span>
+          </div>
+
+          <h2 class="section-title">
+            知识体系
+            <span class="count-badge">{knowledgeEntries.length}</span>
+          </h2>
+
+          <div class="knowledge-grid">
+            {knowledgeCategories.map(cat => (
+              <div class="knowledge-category">
+                <div
+                  class="category-header"
+                  style={`border-left-color: ${CATEGORY_COLORS[cat]}; color: ${CATEGORY_COLORS[cat]};`}
+                >
+                  <span class="category-dot" style={`background: ${CATEGORY_COLORS[cat]};`} aria-hidden="true" />
+                  <span class="category-label">{CATEGORY_LABELS[cat]}</span>
+                  <span class="category-count">{knowledgeByCategory[cat].length}</span>
+                </div>
+                <ul class="knowledge-entries">
+                  {knowledgeByCategory[cat].map(entry => (
+                    <li class="knowledge-entry">
+                      <div class="entry-header">
+                        <span class="entry-title">{entry.title}</span>
+                        <time class="entry-date">{entry.date}</time>
+                      </div>
+                      <p class="entry-content">{entry.content}</p>
+                      {entry.source && (
+                        <span class="entry-source">src: {entry.source}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
         </section>
       )}
 
@@ -649,6 +703,109 @@ const meetingTypeLabel: Record<string, string> = {
     transition: color 0.15s;
   }
   .post-title:hover { color: var(--accent, #58a6ff); }
+
+  /* ─── Knowledge Section ─── */
+  .knowledge-section {
+    margin-bottom: 2.5rem;
+  }
+
+  .knowledge-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .knowledge-category {
+    background: var(--card-bg, rgba(22, 27, 34, 0.6));
+    border: 1px solid var(--border, rgba(255,255,255,.07));
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.65rem 1rem;
+    border-left: 3px solid;
+    background: color-mix(in srgb, currentColor 6%, transparent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .category-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .category-label { flex: 1; }
+
+  .category-count {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    font-weight: 400;
+  }
+
+  .knowledge-entries {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .knowledge-entry {
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid var(--border, rgba(255,255,255,.05));
+  }
+  .knowledge-entry:last-child { border-bottom: none; }
+  .knowledge-entry:hover {
+    background: rgba(255,255,255,.02);
+  }
+
+  .entry-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 0.35rem;
+  }
+
+  .entry-title {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text, #e6edf3);
+    line-height: 1.4;
+  }
+
+  .entry-date {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text-muted, #8b949e);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .entry-content {
+    font-size: 0.82rem;
+    color: color-mix(in srgb, var(--text, #e6edf3) 80%, var(--text-muted, #8b949e));
+    line-height: 1.65;
+    margin: 0 0 0.3rem;
+  }
+
+  .entry-source {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--text-muted, #8b949e);
+    opacity: 0.6;
+  }
+
+  @media (max-width: 600px) {
+    .knowledge-grid { grid-template-columns: 1fr; }
+  }
 
   .post-description {
     font-size: 0.82rem;

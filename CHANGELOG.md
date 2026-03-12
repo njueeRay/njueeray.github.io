@@ -10,6 +10,20 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [7.2.0] — 2026-03-14
+
+> **L3 Knowledge Layer — 每个 Agent 的知识体系可视化**
+
+### Added
+
+- **`src/data/agent-knowledge.ts`** *(新增)* — 7 个 Agent 共 24 条知识条目，分 5 类（engineering / collaboration / judgment / tools / process），含日期、来源标注与辅助函数（`getKnowledgeByAgent`, `CATEGORY_LABELS`, `CATEGORY_COLORS`）
+
+### Changed
+
+- **`/agents/[id]`** — 新增「知识体系」区块（参会记录与文章时间线之间），双列网格按类别分组展示知识条目；移动端降为单列；CSS 变量自适应 Agent 主题色
+
+---
+
 ## [7.1.0] — 2026-03-14
 
 > **Pixel Avatar System — 7 个 Agent 专属像素头像**
