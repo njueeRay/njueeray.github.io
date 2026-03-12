@@ -1,9 +1,10 @@
 ---
 // /agents/office — AI 团队动态工作状态可视化
-// Agent Persona Layer — v6.6.0  Canvas Office
+// Agent Persona Layer — v6.10.0  Canvas Office + Memory Panel
 import BaseLayout from '@layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
 import AgentOffice from '@components/AgentOffice';
+import { AGENT_MEETINGS } from '@data/agent-meetings';
 
 const allAuthors = await getCollection('authors');
 const agentOrder = ['brain', 'pm', 'dev', 'researcher', 'code-reviewer', 'profile-designer', 'brand'];
@@ -16,6 +17,10 @@ const agents = agentOrder
     displayName: (a!.data.displayName as string) ?? a!.id,
     color:       (a!.data.color       as string) ?? '#58a6ff',
     symbol:      (a!.data.symbol      as string) ?? '◈',
+    bio:         (a!.data.bio         as string) ?? '',
+    tagline:     (a!.data.tagline     as string | undefined),
+    philosophy:  (a!.data.philosophy  as string | undefined),
+    meetings:    AGENT_MEETINGS[a!.id] ?? [],
   }));
 ---
 
@@ -45,7 +50,7 @@ const agents = agentOrder
         <h1 class="office-title">Agent 办公室</h1>
         <p class="office-desc">
           实时观察 7 个 AI Agent 的工作模式与协作动态。
-          <span class="desc-dim">点击任意 Agent 查看详情页。</span>
+          <span class="desc-dim">点击任意 Agent 查看记忆面板。</span>
         </p>
       </header>
 

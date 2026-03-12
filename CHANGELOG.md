@@ -10,6 +10,29 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [6.10.0] — 2026-03-14
+
+> **Agent 记忆面板 — 点击查看 Core Memory + Recall Memory 🧠**
+
+### Added
+
+- **`AgentOffice.tsx`** — 新增 `MeetingEvent` 接口，`AgentInfo` 扩展 `bio / tagline / philosophy / meetings` 字段
+- **`AgentOffice.tsx`** — 新增 `selectedAgent` React state：点击 Agent 终端窗口触发弹出记忆面板，不再直接跳转
+- **`AgentOffice.tsx`** — 记忆面板（内嵌覆盖层，无第三方依赖）：
+  - **Core Memory 区块**：Agent 的 tagline（角色 slogan）+ philosophy（核心信念），半透明背景
+  - **Recall Memory 区块**：最近 5 条会议记录，含日期（MM-DD）、会议类型 badge（全体会议 / 规划会 / 复盘会等）、标题（>32 字截断）
+  - **面板顶栏**：几何符号 + displayName + 关闭按钮（×）；顶边用 Agent 品牌色
+  - **「查看详情 →」**：品牌色实色按钮，点击跳转 `/agents/<id>`
+  - **点击背景遮罩**关闭面板（无障碍友好：dialog role + aria-modal）
+
+### Changed
+
+- **`office.astro`** — 引入 `AGENT_MEETINGS`，向 `AgentOffice` 传入新字段 `bio / tagline / philosophy / meetings`
+- **`office.astro`** — 页面描述文案：「点击任意 Agent 查看详情页」→「点击任意 Agent 查看记忆面板」
+- **`AgentOffice.tsx`** — canvas `aria-label` 更新为「查看记忆面板」语义
+
+---
+
 ## [6.9.0] — 2026-03-14
 
 > **Agent 几何身份 Canvas 升级 — 终端交通灯退场，几何人格登场 🔷**

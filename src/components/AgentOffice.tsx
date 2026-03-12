@@ -13,7 +13,7 @@
  *   - 点击 Agent token → 跳转 /agents/<id>
  */
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import {
   AGENT_ACTIVITIES,
   AGENT_HOME_POSITIONS,
@@ -58,11 +58,21 @@ interface AgentRunState {
 }
 
 // ── Props ─────────────────────────────────────────────────────────
+export interface MeetingEvent {
+  date:  string;
+  title: string;
+  type:  string;
+}
+
 export interface AgentInfo {
   id:          string;
   displayName: string;
   color:       string;
   symbol:      string;
+  bio?:        string;
+  tagline?:    string;
+  philosophy?: string;
+  meetings?:   MeetingEvent[];
 }
 
 interface Props {
@@ -471,7 +481,9 @@ export default function AgentOffice({ agents }: Props) {
     return () => cancelAnimationFrame(rafRef.current);
   }, []);
 
-  // ── 点击跳转 ─────────────────────────────────────────────────────
+  // ── 点击展开记忆面板 ────────────────────────────────────────────
+  const [selectedAgent, setSelectedAgent] = useState<AgentInfo | null>(null);
+
   const handleClick = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -481,14 +493,142 @@ export default function AgentOffice({ agents }: Props) {
     const mx = (e.clientX - rect.left) * scaleX;
     const my = (e.clientY - rect.top)  * scaleY;
 
+    let hit: AgentInfo | null = null;
     statesRef.current.forEach((s) => {
       const bx = s.curX - BW / 2;
       const by = s.curY - BH / 2;
       if (mx >= bx && mx <= bx + BW && my >= by && my <= by + BH) {
-        window.location.href = `/agents/${s.id}`;
+        hit = agents.find(a => a.id === s.id) ?? null;
       }
     });
-  }, []);
+    if (hit) setSelectedAgent(hit);
+  }, [agents]);
+
+  // ── 记忆面板 ─────────────────────────────────────────────────────
+  const MEETING_TYPE_LABELS: Record<string, string> = {
+    'all-hands':     '全体会议',
+    'planning':      '规划会',
+    'retrospective': '复盘会',
+    'kickoff':       '启动会',
+    'brainstorm':    '头脑风暴',
+    'research':      '专项研究',
+    'meeting':       '专题会',
+  };
+
+  const MemoryPanel = selectedAgent && (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${selectedAgent.displayName} 记忆面板`}
+      style={{
+        position: 'absolute', inset: 0,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        background: 'rgba(0,0,0,0.72)',
+        backdropFilter: 'blur(4px)',
+        zIndex: 10,
+      }}
+      onClick={(e) => { if (e.target === e.currentTarget) setSelectedAgent(null); }}
+    >
+      <div style={{
+        width: '88%', maxWidth: 520,
+        background: '#0d1117',
+        border: `1px solid ${selectedAgent.color}55`,
+        borderTop: `2px solid ${selectedAgent.color}`,
+        borderRadius: 8,
+        fontFamily: '"JetBrains Mono",monospace',
+        color: '#c9d1d9',
+        fontSize: 13,
+        overflow: 'hidden',
+      }}>
+        {/* ── 标题栏 ── */}
+        <div style={{
+          display: 'flex', alignItems: 'center', gap: 8,
+          padding: '10px 14px',
+          background: selectedAgent.color + '18',
+          borderBottom: `1px solid ${selectedAgent.color}33`,
+        }}>
+          <span style={{ color: selectedAgent.color, fontSize: 15, lineHeight: 1 }}>
+            {selectedAgent.symbol}
+          </span>
+          <span style={{ color: selectedAgent.color, fontWeight: 700, fontSize: 13, flex: 1 }}>
+            {selectedAgent.displayName}
+          </span>
+          <button
+            onClick={() => setSelectedAgent(null)}
+            aria-label="关闭面板"
+            style={{
+              background: 'none', border: 'none', cursor: 'pointer',
+              color: '#8b949e', fontSize: 16, lineHeight: 1, padding: '2px 4px',
+            }}
+          >×</button>
+        </div>
+
+        {/* ── Core Memory ── */}
+        <div style={{ padding: '12px 14px', borderBottom: '1px solid #21262d' }}>
+          <div style={{ color: '#8b949e', fontSize: 10, letterSpacing: '0.08em', marginBottom: 8 }}>
+            CORE MEMORY
+          </div>
+          {selectedAgent.tagline && (
+            <div style={{ marginBottom: 6 }}>
+              <span style={{ color: selectedAgent.color, marginRight: 6 }}>❯</span>
+              <span style={{ color: '#e6edf3', fontStyle: 'italic' }}>{selectedAgent.tagline}</span>
+            </div>
+          )}
+          {selectedAgent.philosophy && (
+            <div style={{ color: '#8b949e', fontSize: 12, lineHeight: 1.6, paddingLeft: 14 }}>
+              {selectedAgent.philosophy}
+            </div>
+          )}
+        </div>
+
+        {/* ── Recall Memory ── */}
+        {selectedAgent.meetings && selectedAgent.meetings.length > 0 && (
+          <div style={{ padding: '12px 14px', borderBottom: '1px solid #21262d' }}>
+            <div style={{ color: '#8b949e', fontSize: 10, letterSpacing: '0.08em', marginBottom: 8 }}>
+              RECALL MEMORY — 最近 {Math.min(5, selectedAgent.meetings.length)} 条
+            </div>
+            {selectedAgent.meetings.slice(0, 5).map((m, i) => (
+              <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 5, alignItems: 'flex-start' }}>
+                <span style={{ color: '#484f58', fontSize: 11, whiteSpace: 'nowrap', marginTop: 1 }}>
+                  {m.date.slice(5)}
+                </span>
+                <span style={{
+                  background: selectedAgent.color + '22',
+                  color: selectedAgent.color,
+                  fontSize: 9, padding: '1px 5px', borderRadius: 3,
+                  whiteSpace: 'nowrap', marginTop: 1,
+                }}>
+                  {MEETING_TYPE_LABELS[m.type] ?? m.type}
+                </span>
+                <span style={{ fontSize: 12, lineHeight: 1.4, color: '#adbac7' }}>
+                  {m.title.length > 32 ? m.title.slice(0, 30) + '…' : m.title}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* ── 操作按钮 ── */}
+        <div style={{ padding: '10px 14px', display: 'flex', justifyContent: 'flex-end' }}>
+          <a
+            href={`/agents/${selectedAgent.id}`}
+            style={{
+              background: selectedAgent.color,
+              color: '#0d1117',
+              padding: '6px 16px',
+              borderRadius: 4,
+              fontSize: 12,
+              fontWeight: 700,
+              textDecoration: 'none',
+              display: 'inline-block',
+            }}
+          >
+            查看详情 →
+          </a>
+        </div>
+      </div>
+    </div>
+  );
 
   // ── 渲染 ─────────────────────────────────────────────────────────
   return (
@@ -514,8 +654,9 @@ export default function AgentOffice({ agents }: Props) {
           cursor: 'pointer',
         }}
         role="img"
-        aria-label="AI 协作团队实时工作状态可视化 — 点击任意 Agent 进入详情页"
+        aria-label="AI 协作团队实时工作状态可视化 — 点击任意 Agent 查看记忆面板"
       />
+      {MemoryPanel}
     </div>
   );
 }
