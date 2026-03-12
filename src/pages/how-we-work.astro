@@ -1,0 +1,867 @@
+---
+// /how-we-work — AI-Native 工作流指南
+// v7.3.0 — 让「如何思考」可感知
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const agents = await getCollection('authors', d => d.data.isAgent);
+agents.sort((a, b) => (a.data.joined ?? '').localeCompare(b.data.joined ?? ''));
+
+const agentRoles: Record<string, string> = {
+  brain: '战略协调中枢',
+  pm: '项目管理 · 版本控制',
+  dev: '全栈实现 · 代码执行',
+  researcher: '技术调研 · 只读输出',
+  'code-reviewer': '七维度质量门禁',
+  'profile-designer': '视觉规划 · 组件选型',
+  brand: '品牌运营 · 内容发布',
+};
+
+const cycle = [
+  {
+    step: '01',
+    cmd: 'recall',
+    title: 'Recall',
+    subtitle: '≤5 分钟',
+    desc: '读取 Sprint Board，确认当前优先级最高的一件事。不翻历史，不规划未来——只看今天最重要的那一张卡。',
+    color: '#58a6ff',
+  },
+  {
+    step: '02',
+    cmd: 'execute',
+    title: 'Execute',
+    subtitle: '聚焦单任务',
+    desc: '只做一件事，做完。中途不切换任务，不「顺手」扩展范围。完成的标准是 DoD Checklist 全绿，而非「感觉差不多了」。',
+    color: '#3fb950',
+  },
+  {
+    step: '03',
+    cmd: 'ship',
+    title: 'Ship',
+    subtitle: '即时可见',
+    desc: '更新 Sprint Board → 提交语义化 Commit → 推送 + 打 Tag → 触发对外动作（Release / Discussion）。每个 Ship 都是一个可追踪的证据点。',
+    color: '#e3b341',
+  },
+];
+
+const boardRules = [
+  { icon: '≤50', label: '行数上限', desc: 'Board 超过 50 行即触发强制 triage。不允许「先记下来再说」。' },
+  { icon: '≤7', label: '活跃项上限', desc: '同时进行的任务不超过 7 条，超出则必须降级或删除。' },
+  { icon: '2W', label: '存活期', desc: '超 2 周未推进的事项自动进入 triage，选择继续 / 删除 / 降级 Backlog。' },
+  { icon: '1', label: '唯一状态源', desc: 'Sprint Board 是唯一活跃状态源，任何其他地方不维护「当前任务」。' },
+];
+
+const pipeline = [
+  { phase: '会议', icon: '◌', desc: '任意类型：kickoff / planning / brainstorm / retrospective' },
+  { phase: '纪要', icon: '◈', desc: 'docs/meetings/YYYY-MM-DD-NN-type.md 即时归档，不超过 24h' },
+  { phase: '决策', icon: '◆', desc: 'design-decisions.md 收录「为什么」，copilot-instructions 收录「是什么」' },
+  { phase: 'Board', icon: '▶', desc: 'Sprint Board 只记录「接下来做什么」，完成即存档' },
+];
+
+const habits = [
+  {
+    no: '01',
+    title: '用 Board 代替待办清单',
+    before: '在 Notion / 便签 / 脑子里维护「所有要做的事」',
+    after: 'Sprint Board ≤7 条，多余的进 Backlog，超期的删掉',
+  },
+  {
+    no: '02',
+    title: '做完一件再开始下一件',
+    before: '并行推进多个任务，每个都「差不多」',
+    after: 'Recall → Execute → Ship，每个 Ship 都有确定性交付物',
+  },
+  {
+    no: '03',
+    title: '把判断力外化为记录',
+    before: '知道为什么做某个决定，但没有写下来',
+    after: 'Decision Journal 记录每次判断——不是结果，是推理过程',
+  },
+];
+---
+
+<BaseLayout
+  title="How We Work · AI-Native 工作流指南"
+  description="一个 AI-native 团队的实际工作协议 — Board 驱动 Ship 循环、Agent 分工体系、决策记录管道。读完之后你能描述 3 个具体的工作习惯改变。"
+>
+  <main class="how-we-work">
+    <div class="container">
+
+      <!-- ─── Hero ─── -->
+      <header class="hero">
+        <div class="hero-prompt" aria-hidden="true">
+          <span class="prompt">❯</span>
+          <span class="cmd"> cat how-we-work.md</span>
+          <span class="cursor">█</span>
+        </div>
+        <h1 class="hero-title">How We Work</h1>
+        <p class="hero-subtitle">
+          AI-native 不是「让 AI 替你做事」——<br />
+          而是「人类判断力 × AI 执行力 = 新的工作单位」
+        </p>
+        <div class="hero-nav">
+          <a href="#cycle" class="hero-link">→ 工作循环</a>
+          <a href="#agents" class="hero-link">→ Agent 分工</a>
+          <a href="#board" class="hero-link">→ Sprint Board</a>
+          <a href="#decisions" class="hero-link">→ 决策记录</a>
+          <a href="#habits" class="hero-link">→ 3 个习惯</a>
+        </div>
+      </header>
+
+      <!-- ─── Board 驱动 Ship 循环 ─── -->
+      <section id="cycle" class="section cycle-section" aria-label="工作循环">
+        <div class="section-prompt" aria-hidden="true">
+          <span class="prompt">❯</span>
+          <span class="cmd"> while true; do recall; execute; ship; done</span>
+        </div>
+        <h2 class="section-heading">三段式工作循环</h2>
+        <p class="section-desc">
+          每次会话、每个任务都遵循同一个最小循环。没有例外，没有「只是先做一半」。
+        </p>
+
+        <div class="cycle-track" role="list">
+          {cycle.map((c, i) => (
+            <div class="cycle-step" role="listitem" style={`--step-color: ${c.color};`}>
+              <div class="step-header">
+                <span class="step-number" aria-hidden="true">{c.step}</span>
+                <div class="step-cmd">
+                  <span class="prompt-inline" aria-hidden="true">$</span>
+                  <span class="cmd-text">{c.cmd}</span>
+                  <span class="step-timing">{c.subtitle}</span>
+                </div>
+              </div>
+              <h3 class="step-title">{c.title}</h3>
+              <p class="step-desc">{c.desc}</p>
+              {i < cycle.length - 1 && (
+                <div class="step-arrow" aria-hidden="true">→</div>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div class="cycle-note">
+          <span class="note-icon" aria-hidden="true">⚑</span>
+          <span>循环不需要「完美的时机」才能开始——只需要 Sprint Board 上有一件事。</span>
+        </div>
+      </section>
+
+      <!-- ─── Agent 分工体系 ─── -->
+      <section id="agents" class="section agents-section" aria-label="Agent 分工体系">
+        <div class="section-prompt" aria-hidden="true">
+          <span class="prompt">❯</span>
+          <span class="cmd"> ls -la .team/agents/</span>
+        </div>
+        <h2 class="section-heading">Agent 分工体系</h2>
+        <p class="section-desc">
+          每个 Agent 有明确的权限边界和职责范围——没有「谁都能管」，也没有「没人管」。
+        </p>
+
+        <div class="agents-grid">
+          {agents.map(a => (
+            <a href={`/agents/${a.id}`} class="agent-card" style={`--ac: ${a.data.color ?? '#58a6ff'};`}>
+              <div class="agent-symbol" aria-hidden="true">{a.data.symbol ?? a.data.avatar}</div>
+              <div class="agent-info">
+                <div class="agent-name">{(a.data.displayName as string).split('·')[0].trim()}</div>
+                <div class="agent-role">{agentRoles[a.id] ?? (a.data.role as string)}</div>
+              </div>
+              <span class="agent-arrow" aria-hidden="true">↗</span>
+            </a>
+          ))}
+        </div>
+
+        <div class="permission-note">
+          <div class="perm-row">
+            <span class="perm-icon allow">✅</span>
+            <span><strong>Agent 可自主决定：</strong>技术路径选型、实现方案、依赖选择、低风险格式修正</span>
+          </div>
+          <div class="perm-row">
+            <span class="perm-icon warn">⚠️</span>
+            <span><strong>需告知用户：</strong>破坏性变更、隐私内容公开、第三方账号注册、削减 Agent 核心职责</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── Sprint Board 铁律 ─── -->
+      <section id="board" class="section board-section" aria-label="Sprint Board 规范">
+        <div class="section-prompt" aria-hidden="true">
+          <span class="prompt">❯</span>
+          <span class="cmd"> wc -l sprint-board.md &amp;&amp; cat board-rules.txt</span>
+        </div>
+        <h2 class="section-heading">Sprint Board 铁律</h2>
+        <p class="section-desc">
+          Sprint Board 是唯一活跃状态源。没有「备份清单」，没有「脑子里的版本」。
+        </p>
+
+        <div class="rules-grid">
+          {boardRules.map(r => (
+            <div class="rule-card">
+              <div class="rule-number">{r.icon}</div>
+              <div class="rule-label">{r.label}</div>
+              <p class="rule-desc">{r.desc}</p>
+            </div>
+          ))}
+        </div>
+
+        <div class="board-anatomy">
+          <div class="anatomy-title">Board 结构示例</div>
+          <pre class="board-snippet" aria-label="Sprint Board 结构示例"><code>{`| # | 事项         | Owner | 状态 | Deadline | 完成物        |
+|---|--------------|-------|------|---------|---------------|
+| 1 | v7.2.0 知识层 | Dev   | 🔜   | 03-14   | agent-knowledge.ts|
+
+---
+## Decision Journal（最近 10 条）
+| 日期  | 决策         | Ray 的判断 | 理由       |
+|-------|-------------|-----------|------------|
+| 03-14 | v7 优先清技术债 | ✅ 自主决策 | 稳健 > 速度 |`}</code></pre>
+        </div>
+      </section>
+
+      <!-- ─── 会议 → 决策管道 ─── -->
+      <section id="decisions" class="section pipeline-section" aria-label="会议决策管道">
+        <div class="section-prompt" aria-hidden="true">
+          <span class="prompt">❯</span>
+          <span class="cmd"> grep -r "decided" meetings/ | sort | jq</span>
+        </div>
+        <h2 class="section-heading">会议 → 决策管道</h2>
+        <p class="section-desc">
+          会议不是消耗时间的仪式——它是决策记忆的生产节点。每次会议产出三件事。
+        </p>
+
+        <div class="pipeline-track" role="list">
+          {pipeline.map((p, i) => (
+            <div class="pipeline-node" role="listitem">
+              <div class="node-icon" aria-hidden="true">{p.icon}</div>
+              <div class="node-content">
+                <div class="node-phase">{p.phase}</div>
+                <div class="node-desc">{p.desc}</div>
+              </div>
+              {i < pipeline.length - 1 && (
+                <div class="node-connector" aria-hidden="true" />
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div class="decision-philosophy">
+          <blockquote class="philosophy-block">
+            <p>
+              decision journal 记录的不是「做了什么决定」，而是「Ray 当时怎么判断的」。
+              AI-native 健康的唯一指标是判断力有没有随着 AI 能力增强而同步成长——而这在「精准否决」的次数里体现，不在产出量里。
+            </p>
+            <footer>— Meeting #09 战略复盘，2026-03-11</footer>
+          </blockquote>
+        </div>
+      </section>
+
+      <!-- ─── 3 个习惯改变 ─── -->
+      <section id="habits" class="section habits-section" aria-label="可带走的工作习惯">
+        <div class="section-prompt" aria-hidden="true">
+          <span class="prompt">❯</span>
+          <span class="cmd"> diff old-way.md new-way.md</span>
+        </div>
+        <h2 class="section-heading">你可以带走的 3 个习惯</h2>
+        <p class="section-desc">
+          读完这份指南，你应该能具体描述以下三个改变——不是理念，是行为。
+        </p>
+
+        <div class="habits-list">
+          {habits.map(h => (
+            <div class="habit-item">
+              <div class="habit-header">
+                <span class="habit-no" aria-hidden="true">{h.no}</span>
+                <h3 class="habit-title">{h.title}</h3>
+              </div>
+              <div class="diff-block">
+                <div class="diff-row diff-minus">
+                  <span class="diff-sign" aria-label="之前的做法">-</span>
+                  <span>{h.before}</span>
+                </div>
+                <div class="diff-row diff-plus">
+                  <span class="diff-sign" aria-label="之后的做法">+</span>
+                  <span>{h.after}</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <!-- ─── Footer CTA ─── -->
+      <footer class="page-footer">
+        <div class="footer-prompt" aria-hidden="true">
+          <span class="prompt">❯</span>
+          <span class="cmd"> echo "Now you know how we work."</span>
+        </div>
+        <p class="footer-msg">
+          这套工作方式本身就是一个开源项目 — 欢迎 fork、改造、验证。
+        </p>
+        <div class="footer-links">
+          <a href="/agents" class="footer-link">认识 Agent 团队 →</a>
+          <a href="/team" class="footer-link">查看团队演进时间线 →</a>
+          <a href="https://github.com/njueeRay/OpenProfile" class="footer-link" target="_blank" rel="noopener">
+            OpenProfile 仓库 ↗
+          </a>
+        </div>
+      </footer>
+
+    </div>
+  </main>
+</BaseLayout>
+
+<style>
+  .how-we-work {
+    padding: 0 0 6rem;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+  }
+
+  /* ─── Section Shell ─── */
+  .section {
+    margin-bottom: 4rem;
+  }
+
+  .section-prompt {
+    display: flex;
+    gap: 0.25rem;
+    align-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    opacity: 0.55;
+    margin-bottom: 1.25rem;
+  }
+  .section-prompt .prompt { color: #58a6ff; }
+  .section-prompt .cmd    { color: var(--text-muted, #8b949e); }
+
+  .section-heading {
+    font-size: clamp(1.25rem, 2.5vw, 1.65rem);
+    font-weight: 700;
+    color: var(--text, #e6edf3);
+    margin: 0 0 0.6rem;
+    letter-spacing: -0.02em;
+  }
+
+  .section-desc {
+    font-size: 0.92rem;
+    color: var(--text-muted, #8b949e);
+    line-height: 1.7;
+    margin: 0 0 2rem;
+    max-width: 620px;
+  }
+
+  /* ─── Hero ─── */
+  .hero {
+    padding: 3rem 0 2.5rem;
+    border-bottom: 1px solid var(--border, rgba(255,255,255,.08));
+    margin-bottom: 3.5rem;
+  }
+
+  .hero-prompt {
+    display: flex;
+    gap: 0.3rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--text-muted, #8b949e);
+    margin-bottom: 1.25rem;
+    opacity: 0.7;
+  }
+  .hero-prompt .prompt { color: #58a6ff; }
+  .cursor {
+    animation: blink 1s step-start infinite;
+    color: #58a6ff;
+  }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0; } }
+
+  .hero-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    color: var(--text, #e6edf3);
+    margin: 0 0 1rem;
+    letter-spacing: -0.03em;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .hero-subtitle {
+    font-size: 1.05rem;
+    color: var(--text-muted, #8b949e);
+    line-height: 1.75;
+    margin: 0 0 1.75rem;
+    max-width: 540px;
+  }
+
+  .hero-nav {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .hero-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: #58a6ff;
+    text-decoration: none;
+    padding: 0.3rem 0.75rem;
+    border: 1px solid rgba(88, 166, 255, .25);
+    border-radius: 4px;
+    background: rgba(88, 166, 255, .07);
+    transition: background 0.15s, border-color 0.15s;
+  }
+  .hero-link:hover {
+    background: rgba(88, 166, 255, .15);
+    border-color: rgba(88, 166, 255, .5);
+  }
+
+  /* ─── Cycle ─── */
+  .cycle-track {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border: 1px solid var(--border, rgba(255,255,255,.08));
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 1.25rem;
+    position: relative;
+  }
+
+  .cycle-step {
+    padding: 1.5rem;
+    border-right: 1px solid var(--border, rgba(255,255,255,.06));
+    position: relative;
+    transition: background 0.15s;
+  }
+  .cycle-step:last-child { border-right: none; }
+  .cycle-step:hover { background: color-mix(in srgb, var(--step-color) 5%, transparent); }
+  .cycle-step::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--step-color);
+  }
+
+  .step-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .step-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--step-color);
+    opacity: 0.6;
+  }
+
+  .step-cmd {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+  }
+
+  .prompt-inline { color: var(--step-color); opacity: 0.8; }
+  .cmd-text { color: var(--text-muted, #8b949e); }
+  .step-timing {
+    margin-left: auto;
+    font-size: 0.68rem;
+    color: var(--step-color);
+    opacity: 0.7;
+    border: 1px solid color-mix(in srgb, var(--step-color) 30%, transparent);
+    background: color-mix(in srgb, var(--step-color) 10%, transparent);
+    border-radius: 3px;
+    padding: 0.1rem 0.4rem;
+  }
+
+  .step-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--step-color);
+    margin: 0 0 0.6rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .step-desc {
+    font-size: 0.83rem;
+    color: var(--text-muted, #8b949e);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .step-arrow {
+    position: absolute;
+    right: -14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1rem;
+    color: var(--text-muted, #8b949e);
+    opacity: 0.4;
+    z-index: 1;
+    pointer-events: none;
+  }
+
+  .cycle-note {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    font-size: 0.83rem;
+    color: var(--text-muted, #8b949e);
+    background: rgba(88, 166, 255, .05);
+    border: 1px solid rgba(88, 166, 255, .15);
+    border-radius: 6px;
+    padding: 0.75rem 1rem;
+  }
+  .note-icon { flex-shrink: 0; }
+
+  /* ─── Agents Grid ─── */
+  .agents-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .agent-card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1rem;
+    background: var(--card-bg, rgba(22,27,34,.7));
+    border: 1px solid var(--border, rgba(255,255,255,.07));
+    border-left: 3px solid var(--ac, #58a6ff);
+    border-radius: 7px;
+    text-decoration: none;
+    transition: background 0.15s, transform 0.15s;
+  }
+  .agent-card:hover {
+    background: color-mix(in srgb, var(--ac) 8%, var(--card-bg, rgba(22,27,34,.7)));
+    transform: translateY(-1px);
+  }
+
+  .agent-symbol {
+    font-size: 1.4rem;
+    color: var(--ac, #58a6ff);
+    flex-shrink: 0;
+    filter: drop-shadow(0 0 6px color-mix(in srgb, var(--ac) 40%, transparent));
+  }
+
+  .agent-info { flex: 1; min-width: 0; }
+  .agent-name {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text, #e6edf3);
+    margin-bottom: 0.15rem;
+  }
+  .agent-role {
+    font-size: 0.72rem;
+    color: var(--text-muted, #8b949e);
+    font-family: 'JetBrains Mono', monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .agent-arrow {
+    font-size: 0.85rem;
+    color: var(--ac, #58a6ff);
+    opacity: 0.5;
+    flex-shrink: 0;
+  }
+
+  .permission-note {
+    background: var(--card-bg, rgba(22,27,34,.6));
+    border: 1px solid var(--border, rgba(255,255,255,.07));
+    border-radius: 7px;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .perm-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-size: 0.85rem;
+    color: var(--text-muted, #8b949e);
+    line-height: 1.6;
+  }
+  .perm-row strong { color: var(--text, #e6edf3); }
+  .perm-icon { flex-shrink: 0; font-size: 0.9rem; }
+
+  /* ─── Board Rules ─── */
+  .rules-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    border: 1px solid var(--border, rgba(255,255,255,.08));
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+
+  .rule-card {
+    padding: 1.25rem 1rem;
+    border-right: 1px solid var(--border, rgba(255,255,255,.06));
+    text-align: center;
+  }
+  .rule-card:last-child { border-right: none; }
+
+  .rule-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: #58a6ff;
+    margin-bottom: 0.3rem;
+  }
+
+  .rule-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text, #e6edf3);
+    margin-bottom: 0.6rem;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .rule-desc {
+    font-size: 0.78rem;
+    color: var(--text-muted, #8b949e);
+    line-height: 1.65;
+    margin: 0;
+  }
+
+  .board-anatomy {
+    background: #0d1117;
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 7px;
+    overflow: hidden;
+  }
+  .anatomy-title {
+    padding: 0.5rem 1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted, #8b949e);
+    background: rgba(255,255,255,.03);
+    border-bottom: 1px solid rgba(255,255,255,.06);
+  }
+  .board-snippet {
+    margin: 0;
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+  }
+  .board-snippet code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.76rem;
+    color: #adbac7;
+    line-height: 1.7;
+    white-space: pre;
+  }
+
+  /* ─── Pipeline ─── */
+  .pipeline-track {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    border: 1px solid var(--border, rgba(255,255,255,.08));
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+  }
+
+  .pipeline-node {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border, rgba(255,255,255,.06));
+    position: relative;
+    transition: background 0.15s;
+  }
+  .pipeline-node:last-child { border-bottom: none; }
+  .pipeline-node:hover { background: rgba(255,255,255,.02); }
+
+  .node-icon {
+    font-size: 1.1rem;
+    color: #58a6ff;
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    width: 1.4rem;
+    text-align: center;
+  }
+
+  .node-content { flex: 1; }
+  .node-phase {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--text, #e6edf3);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 0.2rem;
+  }
+  .node-desc {
+    font-size: 0.8rem;
+    color: var(--text-muted, #8b949e);
+    line-height: 1.6;
+  }
+
+  .node-connector {
+    position: absolute;
+    left: 1.7rem;
+    bottom: 0;
+    width: 1px;
+    height: 1px;
+  }
+
+  .decision-philosophy {
+    margin-top: 0;
+  }
+  .philosophy-block {
+    border-left: 3px solid #58a6ff;
+    margin: 0;
+    padding: 1rem 1.25rem 1.25rem;
+    background: rgba(88, 166, 255, .05);
+    border-radius: 0 6px 6px 0;
+  }
+  .philosophy-block p {
+    font-size: 0.9rem;
+    color: var(--text, #e6edf3);
+    line-height: 1.8;
+    font-style: italic;
+    margin: 0 0 0.75rem;
+  }
+  .philosophy-block footer {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--text-muted, #8b949e);
+  }
+
+  /* ─── Habits ─── */
+  .habits-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .habit-item {
+    border: 1px solid var(--border, rgba(255,255,255,.08));
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .habit-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1.25rem;
+    background: rgba(255,255,255,.02);
+    border-bottom: 1px solid var(--border, rgba(255,255,255,.06));
+  }
+
+  .habit-no {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: #58a6ff;
+    background: rgba(88, 166, 255, .12);
+    border: 1px solid rgba(88, 166, 255, .25);
+    border-radius: 3px;
+    padding: 0.15rem 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .habit-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text, #e6edf3);
+    margin: 0;
+  }
+
+  .diff-block {
+    padding: 0;
+  }
+
+  .diff-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.85rem;
+    line-height: 1.6;
+    border-bottom: 1px solid var(--border, rgba(255,255,255,.04));
+  }
+  .diff-row:last-child { border-bottom: none; }
+
+  .diff-minus {
+    background: rgba(248, 81, 73, .05);
+    color: color-mix(in srgb, #f85149 80%, var(--text-muted, #8b949e));
+  }
+  .diff-plus {
+    background: rgba(63, 185, 80, .05);
+    color: color-mix(in srgb, #3fb950 80%, var(--text, #e6edf3));
+  }
+
+  .diff-sign {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    flex-shrink: 0;
+    font-size: 0.9rem;
+    width: 0.8rem;
+    user-select: none;
+  }
+  .diff-minus .diff-sign { color: #f85149; }
+  .diff-plus .diff-sign  { color: #3fb950; }
+
+  /* ─── Page Footer ─── */
+  .page-footer {
+    border-top: 1px solid var(--border, rgba(255,255,255,.08));
+    padding-top: 2.5rem;
+    margin-top: 1rem;
+  }
+
+  .footer-prompt {
+    display: flex;
+    gap: 0.3rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted, #8b949e);
+    margin-bottom: 0.75rem;
+    opacity: 0.6;
+  }
+  .footer-prompt .prompt { color: #58a6ff; }
+
+  .footer-msg {
+    font-size: 0.9rem;
+    color: var(--text-muted, #8b949e);
+    margin: 0 0 1.25rem;
+  }
+
+  .footer-links {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .footer-link {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.82rem;
+    color: #58a6ff;
+    text-decoration: none;
+    transition: opacity 0.15s;
+  }
+  .footer-link:hover { opacity: 0.7; }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 700px) {
+    .cycle-track     { grid-template-columns: 1fr; }
+    .step-arrow      { display: none; }
+    .rules-grid      { grid-template-columns: repeat(2, 1fr); }
+    .agents-grid     { grid-template-columns: 1fr; }
+  }
+
+  @media (max-width: 420px) {
+    .rules-grid      { grid-template-columns: 1fr; }
+  }
+</style>

@@ -10,6 +10,22 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [7.3.0] — 2026-03-14
+
+> **/how-we-work — AI-Native 工作流可视化指南**
+
+### Added
+
+- **`src/pages/how-we-work.astro`** *(新增)* — 独立页面，包含五个区块：
+  - **三段式工作循环** — Recall / Execute / Ship 卡片式可视化，各带颜色编码与时间标注
+  - **Agent 分工体系** — 7 个 Agent 权限边界卡片（链接至 `/agents/[id]`）+ 自主决策 vs 需告知规则
+  - **Sprint Board 铁律** — 四宫格规则（≤50行 / ≤7条 / 2W存活期 / 唯一源）+ 结构示例代码
+  - **会议 → 决策管道** — 四节点流程（会议→纪要→决策→Board）+ Decision Journal 哲学引言
+  - **3 个可带走的习惯** — `diff` 风格对比（before/after）呈现行为级改变
+- 全页面终端美学一致（JetBrains Mono 命令提示符 + 暗色主题 + 移动端响应式）
+
+---
+
 ## [7.2.0] — 2026-03-14
 
 > **L3 Knowledge Layer — 每个 Agent 的知识体系可视化**
