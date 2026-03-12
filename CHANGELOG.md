@@ -10,6 +10,27 @@ Format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ---
 
+## [6.9.0] — 2026-03-14
+
+> **Agent 几何身份 Canvas 升级 — 终端交通灯退场，几何人格登场 🔷**
+
+### Changed
+
+- **`AgentOffice.tsx`** — `BH` 由 58 → 68，终端窗口高度增加，给身份符号和状态指示器充足呼吸空间
+- **`AgentOffice.tsx`** — 移除 macOS 风格交通灯（red/yellow/green 三点），改为每个 Agent 专属几何符号：
+  - Brain ⬡ → 六边形环（代表神经网络节点与协调中枢）
+  - PM ⏱ → 三节点流程线（代表时序调度与里程碑管理）
+  - Dev ⚙ → 七齿齿轮 + 内圆（代表系统构建与精密运转）
+  - Researcher ✦ → 四芒星 + 散点（代表探索发散与知识聚焦）
+  - Code-Reviewer ◈ → 双层菱形（代表嵌套审查与质量守门）
+  - Profile-Designer ✺ → 对数螺旋（代表美学迭代与视觉展开）
+  - Brand ≋ → 双偏置正弦波（代表信息传播的双向共鸣）
+- **`AgentOffice.tsx`** — 每个终端窗口背景新增低透明度（7%）大号水印符号，强化空间感与品牌辨识
+- **`AgentOffice.tsx`** — 标题文本简化：去除 emoji 前缀，坐标左移至 `bx+26`，与小号几何符号（`r=6.5`）并排
+- **`AgentOffice.tsx`** — 活动文本下移 2px（`TH+16`）、状态指示器下移 4px（`TH+34/37`），适配新高度
+
+---
+
 ## [6.8.0] — 2026-03-14
 
 > **Activity Timeline 自动提取 — 参会记录上线 📋**
